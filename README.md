@@ -1,0 +1,1 @@
+This program processes marching band field sheets containing coordinates (dots) and overlays them onto an image of the marching band field. It provides a visual representation of where each dot (e.g., band member, formations) should be positioned on the field.
