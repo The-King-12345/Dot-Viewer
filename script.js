@@ -1,8 +1,11 @@
-function create_field() {
-    LINES_COUNT = 20;
+function initialize() {
+    const LINE_COUNT = 20;
+    const SIDELINE_POS = [0, 100];
+    const HASH_POS = [100/3, 100/3*2];
+    const NUM_POS = [15, 85];
 
     // sidelines
-    for (let i of [0,100]) {
+    for (let i of SIDELINE_POS) {
         const sideline = document.createElement("div");
         sideline.classList.add("sideline");
         sideline.style.top = i + "%";
@@ -10,37 +13,33 @@ function create_field() {
     }
 
     // for each vertical line
-    for (let i = 0; i <= LINES_COUNT; i++) {
+    for (let i = 0; i <= LINE_COUNT; i++) {
         // yardlines
         const line = document.createElement("div");
         line.classList.add("yardline");
-        line.style.left = 100/LINES_COUNT*i + "%";
+        line.style.left = 100/LINE_COUNT*i + "%";
         document.getElementById("feild").appendChild(line);
 
         // hashes
-        for (let j of [100/3,100/3*2]) {
+        for (let j of HASH_POS) {
             const hash = document.createElement("div");
             hash.classList.add("hash");
             hash.style.top = j + "%";
-            hash.style.left = 100/LINES_COUNT*i + "%";
+            hash.style.left = 100/LINE_COUNT*i + "%";
             document.getElementById("feild").appendChild(hash);
         }
 
         // numbers
-        const numpos1 = 15;
-        const numpos2 = 85;
-
-        for (let j of [numpos1,numpos2]) {
+        for (let j of NUM_POS) {
             const number = document.createElement("div");
             number.classList.add("number");
-            number.innerText = (i < 10) ? i*5 : (LINES_COUNT-i)*5;
+            number.innerText = (i < 10) ? i*5 : (LINE_COUNT-i)*5;
             number.style.top = j + "%";
-            number.style.left = 100/LINES_COUNT*i + "%";
+            number.style.left = 100/LINE_COUNT*i + "%";
 
-            if (j == numpos1) {
+            if (j == NUM_POS[0]) {
                 number.style.transform = "translate(-50%, -50%) rotate(180deg)"
             }
-
 
             document.getElementById("feild").appendChild(number);
         }
@@ -49,5 +48,5 @@ function create_field() {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    create_field();
+    initialize();
 });
