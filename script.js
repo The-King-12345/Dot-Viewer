@@ -1,8 +1,10 @@
+import { Dot } from "./objects.js"
+
 function initialize() {
     const LINE_COUNT = 20;
     const SIDELINE_POS = [0, 100];
     const HASH_POS = [100/3, 100/3*2];
-    const NUM_POS = [15, 85];
+    const NUM_POS = [15.25, 84.75];
 
     // sidelines
     for (let i of SIDELINE_POS) {
@@ -49,4 +51,8 @@ function initialize() {
 
 document.addEventListener("DOMContentLoaded", () => {
     initialize();
+
+    let dots = [];
+    dots.push(new Dot(1,50,50))
+    dots[0].create()
 });

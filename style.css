@@ -1,8 +1,9 @@
 :root {
     --main-cell-size: 32px;
     --sub-cell-size: calc(var(--main-cell-size) / 4);
-    --feild-width: calc(var(--main-cell-size) * 40);
-    --feild-height: calc(var(--main-cell-size) * 21);
+    --feild-width: calc(var(--main-cell-size) * 40 + 1px);
+    --feild-height: calc(var(--main-cell-size) * 21 + 1px);
+    --dot-size: 1%;
 }
 
 body, html {
@@ -36,14 +37,15 @@ body, html {
 
 .hash {
     position: absolute;
+    transform: translate(-50%, -50%);
     width: 1.5%;
     height: 2px;
     background-color: #6e6e6e;
-    transform: translateX(-50%);
 }
 
 .yardline {
     position: absolute;
+    transform: translate(-50%, 0%);
     width: 1.5px;
     height: 100%;
     background-color: #6e6e6e;
@@ -51,6 +53,7 @@ body, html {
 
 .sideline {
     position: absolute;
+    transform: translate(0%, -50%);
     width: 100%;
     height: 2px;
     background-color: #6e6e6e;
@@ -59,7 +62,16 @@ body, html {
 .number {
     position: absolute;
     transform: translate(-50%, -50%);
-    font-size: 200%;
+    font-size: 210%;
     font-weight: bolder;
     color: #c0c0c0;
 }
+
+.dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: calc(var(--dot-size) * 0.525);
+    height: var(--dot-size);
+    background-color: black;
+    border-radius: 50%;
+  }
