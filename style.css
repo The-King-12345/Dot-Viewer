@@ -1,0 +1,65 @@
+:root {
+    --main-cell-size: 32px;
+    --sub-cell-size: calc(var(--main-cell-size) / 4);
+    --feild-width: calc(var(--main-cell-size) * 40);
+    --feild-height: calc(var(--main-cell-size) * 21);
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: lightgray;
+}
+
+.feild {
+    position: relative;
+    width: calc(var(--feild-width));
+    height: calc(var(--feild-height));
+    background-color: white;
+
+    background-image: 
+        linear-gradient(to right, #8cbfd7 1px, transparent 1px),
+        linear-gradient(to bottom, #8cbfd7 1px, transparent 1px),
+        linear-gradient(to right, #e1fefe 1px, transparent 1px),
+        linear-gradient(to bottom, #e1fefe 1px, transparent 1px);
+    background-size: 
+        var(--main-cell-size) var(--main-cell-size), 
+        var(--main-cell-size) var(--main-cell-size), 
+        var(--sub-cell-size) var(--sub-cell-size), 
+        var(--sub-cell-size) var(--sub-cell-size);
+    background-position: 0 0, 0 0, 0 0, 0 0;  
+}
+
+.hash {
+    position: absolute;
+    width: 1.5%;
+    height: 2px;
+    background-color: #6e6e6e;
+    transform: translateX(-50%);
+}
+
+.yardline {
+    position: absolute;
+    width: 1.5px;
+    height: 100%;
+    background-color: #6e6e6e;
+}
+
+.sideline {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: #6e6e6e;
+}
+
+.number {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 200%;
+    font-weight: bolder;
+    color: #c0c0c0;
+}
