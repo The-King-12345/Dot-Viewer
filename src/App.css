@@ -16,7 +16,7 @@ body, html {
     background: lightgray;
 }
 
-.feild {
+main {
     position: relative;
     width: calc(var(--feild-width));
     height: calc(var(--feild-height));
@@ -74,4 +74,4 @@ body, html {
     height: var(--dot-size);
     background-color: black;
     border-radius: 50%;
-  }
+}
