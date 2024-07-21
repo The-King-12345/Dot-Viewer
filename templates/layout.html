@@ -14,9 +14,19 @@
 
     <body>  
 
-    <main>
-        {% block main %}{% endblock %}
-    </main>
+        <main>
+            {% block main %}{% endblock %}
+        </main>
+        
+        
+        
 
     </body>
+    <footer class="mb-5">
+        <form action="/" method="post">
+            <button class="btn btn-primary" type="submit" name="action" value="prev">Prev</button>
+            {{sets}}
+            <button class="btn btn-primary" type="submit" name="action" value="next">Next</button>
+        </form>
+    </footer>
 </html>
