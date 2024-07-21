@@ -1,8 +1,8 @@
 :root {
     --main-cell-size: 32px;
     --sub-cell-size: calc(var(--main-cell-size) / 4);
-    --feild-width: calc(var(--main-cell-size) * 40 + 1px);
-    --feild-height: calc(var(--main-cell-size) * 21 + 1px);
+    --field-width: calc(var(--main-cell-size) * 40 + 1px);
+    --field-height: calc(var(--main-cell-size) * 21 + 1px);
     --dot-size: 1%;
 }
 
@@ -18,8 +18,8 @@ body, html {
 
 main {
     position: relative;
-    width: calc(var(--feild-width));
-    height: calc(var(--feild-height));
+    width: calc(var(--field-width));
+    height: calc(var(--field-height));
     background-color: white;
 
     background-image: 

@@ -1,0 +1,8 @@
+{% set tops = [33.3333,66.6666] %}
+{% set lefts = [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] %}
+
+{% for top in tops %}
+    {% for left in lefts %}
+        <div class="hash" style="top: {{top}}%; left: {{left}}%;"></div>
+    {% endfor %}
+{% endfor %}

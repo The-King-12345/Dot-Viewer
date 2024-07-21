@@ -1,0 +1,9 @@
+{% for dot in dots %}
+
+    {% if dot.side == 1 %}
+        <div class="dot" style="top: {{ dot.hash + dot.hash_steps * 25/21 }}%; left: {{ dot.yd + dot.yd_steps * 5/8 }}%;"></div>
+    {% else %}
+        <div class="dot" style="top: {{ dot.hash + dot.hash_steps * 25/21 }}%; left: {{ (dot.yd + dot.yd_steps * 5/8) * -1 + 100 }}%;"></div> 
+    {% endif %}
+
+{% endfor %}
