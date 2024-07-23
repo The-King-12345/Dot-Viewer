@@ -1,4 +1,6 @@
 __pycache__
+flask_session
 .venv
 *.db
 *.pdf
+*.txt

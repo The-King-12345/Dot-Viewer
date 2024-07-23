@@ -2,3 +2,5 @@ Flask
 flask_session
 sqlite3
 pdfplumber
+re
+argparse

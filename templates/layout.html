@@ -18,18 +18,29 @@
         <div class="topbar">
             <form class="fit d-flex justify-content-around align-items-center">
 
-                <div class="text-light">Page {{page}}</div>
-                <div class="text-light">Counts</div>
-                <div class="text-light">Step Size</div>
-                <div class="text-light">Side-Side</div>
-                <div class="text-light">Dot Viewer</div>
+                <div class="text-light text-center">
+                    <div>Page</div>
+                    <div>{{pages.page}}</div>
+                </div>
+                <div class="text-light text-center">
+                    <div>Measures</div>
+                    <div>{{pages.measures}}</div></div>
+                <div class="text-light text-center">
+                    <div>Counts</div>
+                    <div>{{pages.counts}}</div>
+                </div>
+                <div class="text-light text-center">
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="text-light text-center">Dot Viewer</div>
 
 
             </form>
         </div>
 
         <div class="sidebar">
-            <form class="fit d-flex flex-column justify-content-around align-items-center" action="/" method="post">
+            <form class="fit d-flex flex-column justify-content-around align-items-center" action="/increment" method="post">
 
                     <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">></button>
                     <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn" type="submit" name="action" value="next">+</button>
