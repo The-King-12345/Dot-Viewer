@@ -3,9 +3,9 @@ import pdfplumber
 import re
 import argparse
 
-PDF_PATH = "pdf.pdf"
-DATABASE_PATH = "database.db"
-TEXT_PATH = "text.txt"
+PDF_PATH = "./static/pdf.pdf"
+DATABASE_PATH = "./static/database.db"
+TEXT_PATH = "./static/text.txt"
 
 def main():
     parser = argparse.ArgumentParser(description="Populate a database using information from a pdf")

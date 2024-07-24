@@ -16,7 +16,7 @@
     <body>  
         
         <div class="topbar">
-            <form class="fit d-flex justify-content-around align-items-center">
+            <form class="w-100 h-100 d-flex justify-content-around align-items-center">
 
                 <div class="text-light text-center">
                     <div>Page</div>
@@ -40,7 +40,7 @@
         </div>
 
         <div class="sidebar">
-            <form class="fit d-flex flex-column justify-content-around align-items-center" action="/increment" method="post">
+            <form class="w-100 h-100 d-flex flex-column justify-content-around align-items-center" action="/increment" method="post">
 
                     <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">></button>
                     <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn" type="submit" name="action" value="next">+</button>
@@ -52,7 +52,7 @@
         </div>   
 
         <div class="main-container">
-            <main class="fit d-flex justify-content-center align-items-center">
+            <main class="w-100 h-100 d-flex justify-content-center align-items-center">
                 {% block main %}{% endblock %}
             </main>
         </div>
