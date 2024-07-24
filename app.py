@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, jsonify, request, session
 from flask_session import Session
 import sqlite3
 
@@ -15,7 +15,7 @@ MAX = 30
 def index():
     page = session.get("page", 1)
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("static/database.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -26,9 +26,20 @@ def index():
         app.logger.info(f"ERROR at get_dots: {e}")
     pages = dict(cursor.fetchone())
 
-    # get dots
+    cursor.close()
+    conn.close()
+
+    return render_template("index.html", pages=pages)
+
+@app.route("/data")
+def data():
+    page = session.get("page", 1)
+
+    conn = sqlite3.connect("static/database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
     try:
-        cursor.execute(f"SELECT * FROM dots WHERE page_id = {page}")
+        cursor.execute(f"SELECT side, yd, yd_steps, hash, hash_steps FROM dots WHERE page_id = {page}")
     except sqlite3.Error as e:
         app.logger.info(f"ERROR at get_dots: {e}")
     dots = [dict(row) for row in cursor.fetchall()]
@@ -36,10 +47,10 @@ def index():
     cursor.close()
     conn.close()
 
-    return render_template("index.html", dots=dots, pages=pages)
+    return jsonify(dots)
 
 
-@app.route('/increment', methods=['POST'])
+@app.route("/increment", methods=["POST"])
 def increment():
 
     action = request.form.get("action")
@@ -52,5 +63,5 @@ def increment():
 
     return redirect("/")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

@@ -1,9 +1,27 @@
-{% for dot in dots %}
-
-    {% if dot.side == 1 %}
-        <div class="dot" style="top: {{ dot.hash + dot.hash_steps * 25/21 }}%; left: {{ dot.yd + dot.yd_steps * 5/8 }}%;"></div>
-    {% else %}
-        <div class="dot" style="top: {{ dot.hash + dot.hash_steps * 25/21 }}%; left: {{ (dot.yd + dot.yd_steps * 5/8) * -1 + 100 }}%;"></div> 
-    {% endif %}
-
-{% endfor %}
+<script>
+    fetch("/data")
+        .then(response => response.json())
+        .then(data => {
+            var container = d3.select("#field");
+            
+            var divs = container.selectAll()
+                .data(data)
+                .enter()
+                .append("div")
+                .attr("class", "dot")
+                .style("top", function(d) {
+                    return `${d.hash + d.hash_steps * 25/21}%`
+                })
+                .style("left", function(d) {
+                    if (d.side == 1) {
+                        return `${d.yd + d.yd_steps * 5/8}%`;
+                    } else {
+                        return `${(d.yd + d.yd_steps * 5/8) * -1 + 100}%`;
+                    }
+                });
+                
+    })
+    .catch(function(error) {
+    console.error('Error loading data:', error); 
+    });
+</script>

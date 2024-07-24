@@ -1,5 +1,5 @@
 :root {
-    --main-cell-size: 36px;
+    --main-cell-size: 32px;
     --sub-cell-size: calc(var(--main-cell-size) / 4);
     --field-width: calc(var(--main-cell-size) * 40 + 1px);
     --field-height: calc(var(--main-cell-size) * 21 + 1px);
