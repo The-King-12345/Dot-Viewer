@@ -10,6 +10,7 @@
         <link href="/static/styles.css" rel="stylesheet">
 
         <script src="https://d3js.org/d3.v6.min.js"></script>
+        <script src="../static/d3.js" defer></script>
     
         <title>{% block title %}{% endblock %}</title>
     </head>
@@ -21,14 +22,14 @@
 
                 <div class="text-light text-center">
                     <div>Page</div>
-                    <div>{{pages.page}}</div>
+                    <div id="pageDisplay"></div>
                 </div>
                 <div class="text-light text-center">
                     <div>Measures</div>
-                    <div>{{pages.measures}}</div></div>
+                    <div></div></div>
                 <div class="text-light text-center">
                     <div>Counts</div>
-                    <div>{{pages.counts}}</div>
+                    <div></div>
                 </div>
                 <div class="text-light text-center">
                     <div></div>
@@ -41,15 +42,15 @@
         </div>
 
         <div class="sidebar">
-            <form class="w-100 h-100 d-flex flex-column justify-content-around align-items-center" action="/increment" method="post">
+            <div class="w-100 h-100 d-flex flex-column justify-content-around align-items-center">
 
-                    <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">></button>
-                    <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn" type="submit" name="action" value="next">+</button>
-                    <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn" type="submit" name="action" value="prev">-</button>
+                    <button id="playPauseButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">Play</button>
+                    <button id="nextButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn" type="submit" name="action" value="next">+</button>
+                    <button id="prevButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn" type="submit" name="action" value="prev">-</button>
                     <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">P/C</button>
                     <button class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">i</button>
                 
-            </form>
+            </div>
         </div>   
 
         <div class="main-container">

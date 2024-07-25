@@ -13,33 +13,17 @@ MAX = 30
 
 @app.route("/", methods=["GET"])
 def index():
-    page = session.get("page", 1)
+    return render_template("index.html")
 
-    conn = sqlite3.connect("static/database.db")
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    # get pages
-    try:
-        cursor.execute(f"SELECT * FROM pages WHERE id = {page}")
-    except sqlite3.Error as e:
-        app.logger.info(f"ERROR at get_dots: {e}")
-    pages = dict(cursor.fetchone())
-
-    cursor.close()
-    conn.close()
-
-    return render_template("index.html", pages=pages)
-
-@app.route("/data")
-def data():
-    page = session.get("page", 1)
+@app.route("/positions", methods=["GET"])
+def positions():
+    page_id = request.args.get("page_id", default = 1, type=int)
 
     conn = sqlite3.connect("static/database.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     try:
-        cursor.execute(f"SELECT side, yd, yd_steps, hash, hash_steps FROM dots WHERE page_id = {page}")
+        cursor.execute(f"SELECT * FROM dots WHERE page_id = {page_id}")
     except sqlite3.Error as e:
         app.logger.info(f"ERROR at get_dots: {e}")
     dots = [dict(row) for row in cursor.fetchall()]
@@ -49,19 +33,12 @@ def data():
 
     return jsonify(dots)
 
+# @app.route("/save_index", methods=["POST"])
+# def save_index():
+#     data = request.get_json()
+#     session["page"] = data["current_index"]
+#     return jsonify({"status": "success", "current_index": session["page"]})
 
-@app.route("/increment", methods=["POST"])
-def increment():
-
-    action = request.form.get("action")
-    if action == "prev" and session.get("page", 1) > MIN:
-        page = session.get("page", 1) - 1
-        session["page"] = page
-    elif action == "next" and session.get("page", 1) < MAX:
-        page = session.get("page", 1) + 1
-        session["page"] = page
-
-    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)
