@@ -48,12 +48,17 @@ def populate(db_path, txt_path):
                     print(f"ERROR at populate_performers: {e}")
             
             # populate dots and pages
-            elif matches := re.search(r"^(\d+A?) (\d+\-\d+)? ?(\d+) Side ([12]): (?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
+            elif matches := re.search(r"^(\d+A?) (\d+\-\d+)? ?(\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
                 page = matches.group(1)
                 measures = matches.group(2)
                 counts = int(matches.group(3))
-                side = int(matches.group(4))
                 yd = int(matches.group(8))
+                
+                # set side
+                if matches.group(4) == None:
+                    side = 1
+                else: 
+                    side = int(matches.group(4))
 
                 # set yd_steps
                 if matches.group(5) != None:
@@ -122,6 +127,13 @@ def populate(db_path, txt_path):
                     conn.commit()
                 except sqlite3.Error as e:
                     print(f"ERROR at populate_dots: {e}")
+
+            elif matches := re.search(r"^Page .+", line):
+                pass
+            elif matches := re.search(r"^Set Measure .+", line):
+                pass
+            else:
+                print("No match: ", line)
 
     
     print("Data inserted successfully")
