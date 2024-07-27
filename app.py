@@ -15,50 +15,31 @@ MAX = 30
 def index():
     return render_template("index.html")
 
-@app.route("/positions", methods=["GET"])
-def positions():
-    page_id = request.args.get("page_id", default = 1, type=int)
-
+@app.route("/api/database", methods=["GET"])
+def get_data():
     conn = sqlite3.connect("static/database.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+
     try:
-        cursor.execute(f"SELECT * FROM dots WHERE page_id = {page_id}")
+        cursor.execute(f"SELECT * FROM dots")
     except sqlite3.Error as e:
         app.logger.info(f"ERROR at /positions: {e}")
     dots = [dict(row) for row in cursor.fetchall()]
 
-    cursor.close()
-    conn.close()
-
-    return jsonify(dots)
-
-@app.route("/duration", methods=["GET"])
-def duration():
-    page_id = request.args.get("page_id", default = 1, type=int)
-
-    conn = sqlite3.connect("static/database.db")
-    cursor = conn.cursor()
-
-    # tempo
     try:
-        cursor.execute(f"SELECT counts, tempo FROM pages WHERE id = {page_id} LIMIT 1")
+        cursor.execute(f"SELECT * FROM pages")
     except sqlite3.Error as e:
-        print(f"ERROR at /duration: {e}")
-    counts, tempo = cursor.fetchone()
+        app.logger.info(f"ERROR at /positions: {e}")
+    pages = [dict(row) for row in cursor.fetchall()]
 
-    duration = 60 / tempo * counts * 1000
+    try:
+        cursor.execute(f"SELECT * FROM performers")
+    except sqlite3.Error as e:
+        app.logger.info(f"ERROR at /positions: {e}")
+    performers = [dict(row) for row in cursor.fetchall()]
 
-    cursor.close()
-    conn.close()
-
-    return jsonify(duration)
-
-# @app.route("/save_index", methods=["POST"])
-# def save_index():
-#     data = request.get_json()
-#     session["page"] = data["current_index"]
-#     return jsonify({"status": "success", "current_index": session["page"]})
+    return jsonify([dots, pages, performers])
 
 
 if __name__ == "__main__":
