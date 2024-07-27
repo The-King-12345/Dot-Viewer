@@ -66,7 +66,7 @@ def populate(db_path, txt_path):
             # populate dots and pages
             elif matches := re.search(r"^(\d+A?) (\d+\-\d+)? ?(\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
                 page = matches.group(1)
-                measures = matches.group(2)
+                measures = matches.group(2) if matches.group(2) else "–"
                 counts = int(matches.group(3))
                 yd = int(matches.group(8))
                 
@@ -206,7 +206,7 @@ def create_tables(path):
         CREATE TABLE pages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             page TEXT UNIQUE NOT NULL,
-            measures TEXT,
+            measures TEXT NOT NULL,
             counts INTEGER NOT NULL
         )
     ''')
