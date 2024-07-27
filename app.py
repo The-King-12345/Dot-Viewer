@@ -25,13 +25,34 @@ def positions():
     try:
         cursor.execute(f"SELECT * FROM dots WHERE page_id = {page_id}")
     except sqlite3.Error as e:
-        app.logger.info(f"ERROR at get_dots: {e}")
+        app.logger.info(f"ERROR at /positions: {e}")
     dots = [dict(row) for row in cursor.fetchall()]
 
     cursor.close()
     conn.close()
 
     return jsonify(dots)
+
+@app.route("/duration", methods=["GET"])
+def duration():
+    page_id = request.args.get("page_id", default = 1, type=int)
+
+    conn = sqlite3.connect("static/database.db")
+    cursor = conn.cursor()
+
+    # tempo
+    try:
+        cursor.execute(f"SELECT counts, tempo FROM pages WHERE id = {page_id} LIMIT 1")
+    except sqlite3.Error as e:
+        print(f"ERROR at /duration: {e}")
+    counts, tempo = cursor.fetchone()
+
+    duration = 60 / tempo * counts * 1000
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(duration)
 
 # @app.route("/save_index", methods=["POST"])
 # def save_index():

@@ -8,8 +8,8 @@ const nextButton = d3.select("#nextButton")
 const prevButton = d3.select("#prevButton")
 const pageDisplay = d3.select("#pageDisplay")
 
-function fetchData(page_id, update = false) {
-    fetch(`/positions?page_id=${page_id}`)
+async function fetchData(page_id, update = false) {
+    await fetch(`/positions?page_id=${page_id}`)
         .then(response => response.json())
         .then(fetchedData => {
             data = fetchedData;
@@ -38,8 +38,13 @@ function fetchData(page_id, update = false) {
                 next();
             });
         });
+}
 
-    saveCurrentIndex();
+async function fetchDuration(page_id) {
+    const response = await fetch(`/duration?page_id=${page_id}`)
+    const data = response.json();
+    return data
+    
 }
 
 function initializeDots(data) {
@@ -85,25 +90,27 @@ function updateDots(data) {
     dots.exit().remove();
 }
 
-function startAnimation(dots) {
+function startAnimation() {
     playing = true;
     playPauseButton.text("Pause");
     animate();
 }
 
-function pauseAnimation(data) {
+function pauseAnimation() {
     playing = false;
     playPauseButton.text("Play");
     clearTimeout(timer);
-    saveCurrentIndex();
+    saveCurrentIndex(currentIndex);
 }
 
-function animate() {
+async function animate() {
     if (!playing) return;
 
-    const duration = 1000; 
-    
-    fetchData(currentIndex);
+    currentIndex = (currentIndex + 1);
+    saveCurrentIndex(`${currentIndex - 1}-${currentIndex}`)
+
+    const duration = await fetchDuration(currentIndex); 
+    await fetchData(currentIndex);
 
     container.selectAll(".dot")
         .data(data, d => d.performer_id)
@@ -120,24 +127,27 @@ function animate() {
                 return `${(d.yd + d.yd_steps * 5/8) * -1 + 100}%`;
             }
         });
-    
-    currentIndex = (currentIndex + 1);
 
     timer = setTimeout(() => animate(), duration);
 }
 
-function saveCurrentIndex() {
-    pageDisplay.text(currentIndex);
+function saveCurrentIndex(value) {
+    pageDisplay.text(value);
 }
 
 function next() {
     currentIndex = (currentIndex + 1);
+    saveCurrentIndex(currentIndex);
     fetchData(currentIndex, true);
 }
 
 function prev() {
     currentIndex = (currentIndex - 1);
+    saveCurrentIndex(currentIndex);
     fetchData(currentIndex, true);
 }
 
+
+
+saveCurrentIndex(currentIndex);
 fetchData(currentIndex);

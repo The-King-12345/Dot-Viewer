@@ -12,6 +12,7 @@ def main():
     parser.add_argument("-c", "--create", action="store_true", help="Create blank tables in the database (clears existing tables)")
     parser.add_argument("-t", "--text", action="store_true", help="Extract text from pdf and store it in a text file")
     parser.add_argument("-p", "--populate", action="store_true", help="Populate the database using the text file")
+    parser.add_argument("-a", "--add", action="store_true", help="Add additional information to the database")
 
     args = parser.parse_args()
 
@@ -20,6 +21,7 @@ def main():
         args.text = True
         args.create = True
         args.populate = True
+        args.add = True
 
     if args.create:
         create_tables(DATABASE_PATH)
@@ -28,6 +30,21 @@ def main():
         create_text_file(TEXT_PATH, text)
     if args.populate:
         populate(DATABASE_PATH, TEXT_PATH)
+    if args.add:
+        add_info(DATABASE_PATH)
+
+
+def add_info(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 168")
+
+    print("Info added successfully")
+
+    cursor.close()
+    conn.close()
+    return
 
 
 def populate(db_path, txt_path):
@@ -35,7 +52,6 @@ def populate(db_path, txt_path):
     cursor = conn.cursor()
 
     with open(txt_path, "r") as txt_file:
-        current_symbol = "MISSING"
         lines = txt_file.readlines()
         for line in lines:
 
