@@ -1,6 +1,7 @@
 let playing = false;
 let currentIndex = 1;
 let timer;
+let timeoutIds = [];
 let dots_data, pages_data, performers_data;
 
 const container = d3.select("#field");
@@ -62,7 +63,10 @@ function startAnimation() {
 function pauseAnimation() {
     playing = false;
     playPauseButton.text("Play");
+
     clearTimeout(timer);
+    timeoutIds.forEach(id => clearTimeout(id));
+    timeoutIds = [];
     
     const filtered = dots_data.filter(d => d.page_id === currentIndex);
     container.selectAll(".dot").data(filtered, d => d.performer_id).interrupt();
@@ -76,7 +80,10 @@ async function animate() {
     updateDisplay(currentIndex);
     initializeDots(currentIndex);
 
-    const duration = getDuration(currentIndex);
+    const page = getPage(currentIndex);
+    const duration = (60 / page.tempo * page.counts * 1000);
+    const counts = page.counts;
+
     const filtered = dots_data.filter(d => d.page_id === currentIndex);
     
     container.selectAll(".dot")
@@ -95,6 +102,13 @@ async function animate() {
             }
         });
 
+    for (let i = 0; i < counts; i++) {
+        let timeoutId = setTimeout(() => {
+            if (playing) runningDisplay(currentIndex, i+1);
+        }, i * (duration / counts));
+        timeoutIds.push(timeoutId);
+    }
+
     timer = setTimeout(() => animate(), duration);
 }
 
@@ -108,21 +122,28 @@ function getPage(page_id) {
 }
 
 
-function getDuration(page_id) {
+function runningDisplay(page_id, i) {
+    if (!playing) return;
+
     const page = getPage(page_id);
-    return (60 / page.tempo * page.counts * 1000)
+    
+    countsDisplay.text(`${i} of ${page.counts}`);
 }
 
 
 function updateDisplay(page_id) {
     const page = getPage(page_id);
 
-    if (page !== undefined) {
+    if (playing) {
+        const prevPage = getPage(page_id-1)
+
+        pageDisplay.text(`${prevPage.page}-${page.page}`);
+        measureDisplay.text(page.measures);
+
+    } else {
         pageDisplay.text(page.page);
         measureDisplay.text(page.measures);
         countsDisplay.text(page.counts);
-    } else {
-        console.error('Page not found');
     }
 }
 
@@ -189,5 +210,6 @@ async function loadData() {
 
     console.log("Data loaded");
 }
+
 
 main();
