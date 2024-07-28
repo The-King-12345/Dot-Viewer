@@ -42,8 +42,21 @@
     width: calc(100vw - var(--sidebar-width));
 }
 
-.field {
+#contianer {
     position: relative;
+    overflow: auto;
+}
+
+#zoomable-flexbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform-origin: 0 0; 
+}
+
+.field {
+    position: absolute;
     width: calc(var(--field-width));
     height: calc(var(--field-height));
 }
@@ -55,7 +68,7 @@
 
 .gridline-v {
     width: 0.1%;
-    height: calc(400% / 21);
+    height: calc(400% / 21 + 100%);
     background-color: #e1fefe;
     z-index: -2;
 }

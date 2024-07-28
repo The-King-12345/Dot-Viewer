@@ -11,6 +11,7 @@
 
         <script src="https://d3js.org/d3.v6.min.js"></script>
         <script src="../static/d3.js" defer></script>
+        <script src="../static/scroll.js" defer></script>
     
         <title>{% block title %}{% endblock %}</title>
     </head>
@@ -55,8 +56,10 @@
         </div>   
 
         <div class="main-container">
-            <div class="w-100 h-100 d-flex justify-content-center align-items-center">
-                {% block main %}{% endblock %}
+            <div id="container" class="w-100 h-100">
+                <div id="zoomable-flexbox" class="w-100 h-100 d-flex justify-content-center align-items-center">
+                    {% block main %}{% endblock %}
+                </div>
             </div>
         </div>
 
