@@ -4,3 +4,4 @@ flask_session
 *.db
 *.pdf
 *.txt
+*.mp3

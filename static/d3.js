@@ -179,8 +179,18 @@ function initializeDots(page_id) {
     dots.enter()
         .append("div")
         .attr("class", "dot")
+        .text(function(d) {
+            const n = performers_data.filter(n => n.id === d.performer_id);
+            let label = n[0].label;
+
+            if (label == "(unlabeled)" | label == "(unlabeled) ") {
+                label = " "
+            }
+            
+            return `‎\n${label}`;
+        })
         .style("top", function(d) {
-            return `${d.hash + d.hash_steps * 25/21}%`
+            return `${d.hash + d.hash_steps * 25/21}%`;
         })
         .style("left", function(d) {
             if (d.side == 1) {
@@ -201,8 +211,6 @@ function updateDots(page_id) {
         .data(filtered, d => d.performer_id)
 
     dots.enter()
-        .append("div")
-        .attr("class", "dot")
         .merge(dots)
         .style("top", function(d) {
             return `${d.hash + d.hash_steps * 25/21}%`

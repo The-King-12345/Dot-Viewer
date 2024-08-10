@@ -125,4 +125,7 @@
     height: var(--dot-size);
     background-color: black;
     border-radius: 50%;
+    font-weight: bold;
+    font-size: .4vw;
+    color: gray;
 }
