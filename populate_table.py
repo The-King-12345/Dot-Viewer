@@ -38,7 +38,29 @@ def add_info(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 168")
+    cursor.execute("PRAGMA table_info(pages);")
+    columns = [row[1] for row in cursor.fetchall()]
+
+    if "tempo" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 160")
+        conn.commit()
+    if "timestamp" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0")
+        conn.commit()
+
+    # populate timestamp
+    time = 0.45
+
+    try:
+        cursor.execute("SELECT id, counts, tempo FROM pages")
+    except sqlite3.Error as e:
+        print(f"ERROR at populate_timestamp: {e}")
+    rows = cursor.fetchall()
+
+    for row in rows:
+        time += 60 / row[2] * row[1]
+        cursor.execute("UPDATE pages SET timestamp = ? WHERE id = ?", (time, row[0]))
+        conn.commit()
 
     print("Info added successfully")
 
@@ -56,17 +78,22 @@ def populate(db_path, txt_path):
         for line in lines:
 
             # populate performers
-            if matches := re.search(r"Performer: Symbol: ([A-Z]) Label: (\d+)", line):
+            if matches := re.search(r"Performer: (.+) Symbol: ([a-zA-Z]) Label: (.+)? ?ID:.+", line):
                 try:
-                    cursor.execute("INSERT INTO performers (name, symbol, label) VALUES(?, ?, ?)", (matches.group(1) + matches.group(2), matches.group(1), matches.group(2)))
+                    if matches.group(3) == None:
+                        label = "(unlabeled)"
+                    else: 
+                        label = matches.group(3)
+
+                    cursor.execute("INSERT INTO performers (performer, symbol, label) VALUES(?, ?, ?)", (matches.group(1), matches.group(2), label))
                     conn.commit()
                 except sqlite3.Error as e:
                     print(f"ERROR at populate_performers: {e}")
             
             # populate dots and pages
-            elif matches := re.search(r"^(\d+A?) (\d+\-\d+)? ?(\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
+            elif matches := re.search(r"(\d+A?) (\d+(?: ?\- ?\d+)?) (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
                 page = matches.group(1)
-                measures = matches.group(2) if matches.group(2) else "–"
+                measures = matches.group(2) 
                 counts = int(matches.group(3))
                 yd = int(matches.group(8))
                 
@@ -112,7 +139,7 @@ def populate(db_path, txt_path):
                 
                 # populate pages
                 try:
-                    cursor.execute(f"SELECT EXISTS (SELECT 1 FROM pages WHERE page = '{page}')")
+                    cursor.execute(f"SELECT EXISTS (SELECT 1 FROM pages WHERE page = ?)", (page,))
                 except sqlite3.Error as e:
                     print(f"ERROR at select_exists: {e}")
 
@@ -132,7 +159,7 @@ def populate(db_path, txt_path):
 
                 # get page_id
                 try:
-                    cursor.execute(f"SELECT id FROM pages WHERE page = '{page}' LIMIT 1")
+                    cursor.execute(f"SELECT id FROM pages WHERE page = ? LIMIT 1", (page,))
                 except sqlite3.Error as e:
                     print(f"ERROR at get_page_id: {e}")
                 page_id = cursor.fetchone()[0]
@@ -144,7 +171,7 @@ def populate(db_path, txt_path):
                 except sqlite3.Error as e:
                     print(f"ERROR at populate_dots: {e}")
 
-            elif matches := re.search(r"^Page .+", line):
+            elif matches := re.search(r"^Printed: .+", line):
                 pass
             elif matches := re.search(r"^Set Measure .+", line):
                 pass
@@ -188,17 +215,17 @@ def create_tables(path):
     conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
-    cursor.execute("DROP TABLE performers")
-    cursor.execute("DROP TABLE pages")
-    cursor.execute("DROP TABLE dots")
+    cursor.execute("DROP TABLE IF EXISTS performers")
+    cursor.execute("DROP TABLE IF EXISTS pages")
+    cursor.execute("DROP TABLE IF EXISTS dots")
     print("Tables cleared successfully.")
 
     cursor.execute('''
         CREATE TABLE performers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
+            performer TEXT NOT NULL,
             symbol TEXT NOT NULL,
-            label INTEGER NOT NULL
+            label TEXT NOT NULL
         )
     ''')
     

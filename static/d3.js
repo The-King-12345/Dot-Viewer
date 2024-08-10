@@ -12,6 +12,8 @@ const pageDisplay = d3.select("#pageDisplay")
 const measureDisplay = d3.select("#measuresDisplay")
 const countsDisplay = d3.select("#countsDisplay")
 
+const audio = document.getElementById("audio")
+
 
 async function main() {
     await loadData();
@@ -40,21 +42,40 @@ async function main() {
 
 
 function next() {
-    currentIndex = (currentIndex + 1);
+    if (currentIndex < pages_data.length) {
+        currentIndex = (currentIndex + 1);
+    }
+    
     updateDisplay(currentIndex);
     updateDots(currentIndex);
 }
 
 
 function prev() {
-    currentIndex = (currentIndex - 1);
+    if (currentIndex > 1) {
+        currentIndex = (currentIndex - 1);
+    }
+
     updateDisplay(currentIndex);
     updateDots(currentIndex);
 }
 
 
+function startAudio() {
+    const page = getPage(currentIndex);
+
+    audio.currentTime = page.timestamp;
+    audio.play();
+}
+
+function stopAudio() {
+    audio.pause();
+}
+
+
 function startAnimation() {
     playing = true;
+    startAudio();
     playPauseButton.text("Pause");
     animate();
 }
@@ -62,6 +83,7 @@ function startAnimation() {
 
 function pauseAnimation() {
     playing = false;
+    stopAudio();
     playPauseButton.text("Play");
 
     clearTimeout(timer);

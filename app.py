@@ -7,10 +7,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# global variable 
-MIN = 1
-MAX = 30
-
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
