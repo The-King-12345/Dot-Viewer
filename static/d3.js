@@ -65,7 +65,20 @@ async function startAudio() {
     const page = getPage(currentIndex);
 
     audio.currentTime = page.timestamp;
-    audio.play();
+    
+    audio.addEventListener('canplaythrough', () => {
+        audio.play().then(() => callback()).catch((error) => {
+            console.error('Error starting audio:', error);
+            callback(); // Optionally call the callback even if there's an error
+        });
+    }, { once: true });
+
+    audio.addEventListener('error', (error) => {
+        console.error('Error with audio:', error);
+        callback(); // Call the callback even if there's an error
+    }, { once: true });
+
+    audio.load();
 }
 
 function stopAudio() {
@@ -76,8 +89,9 @@ function stopAudio() {
 async function startAnimation() {
     playing = true;
     playPauseButton.text("Pause");
-    await startAudio();
-    animate();
+    startAudio(() => {
+        animate();
+    });
 }
 
 
