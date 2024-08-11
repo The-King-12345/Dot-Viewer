@@ -61,7 +61,7 @@ function prev() {
 }
 
 
-function startAudio() {
+async function startAudio() {
     const page = getPage(currentIndex);
 
     audio.currentTime = page.timestamp;
@@ -73,10 +73,10 @@ function stopAudio() {
 }
 
 
-function startAnimation() {
+async function startAnimation() {
     playing = true;
-    startAudio();
     playPauseButton.text("Pause");
+    await startAudio();
     animate();
 }
 
