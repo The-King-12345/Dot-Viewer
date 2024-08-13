@@ -34,6 +34,10 @@
     background-color: rgba(105, 105, 105, 0.2);
 }
 
+.sidebar-flex {
+    flex-direction: column;
+}
+
 .main-container {
     position: relative;
     top: var(--topbar-height);
@@ -118,6 +122,10 @@
     font-size: 2vw;
     font-weight: bolder;
     color: #c0c0c0;
+
+    user-select: none;
+    -webkit-user-select: none; /* For Safari */
+    text-decoration: none;
 }
 
 .dot {
@@ -128,4 +136,24 @@
     font-weight: bold;
     font-size: .4vw;
     color: gray;
+}
+
+@media only screen and (max-width: 768px) {
+    .sidebar {
+        width: 100vw;
+        height: var(--topbar-height);
+        top: calc(100vh - var(--topbar-height));
+        left: 0;
+    }
+
+    .sidebar-flex {
+        flex-direction: row;
+    }
+
+    .main-container {
+        top: var(--topbar-height);
+        left: 0;
+        height: calc(100vh - var(--topbar-height) - var(--topbar-height));
+        width: 100vw;
+    }
 }
