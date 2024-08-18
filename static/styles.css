@@ -126,6 +126,8 @@
 
     user-select: none;
     -webkit-user-select: none; /* For Safari */
+    pointer-events: none;
+    cursor: default;
     text-decoration: none;
 }
 
