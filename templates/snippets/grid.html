@@ -1,4 +1,6 @@
-{% for i in range(1-9,84+9,1) %}
+{% set extra = 5%}
+
+{% for i in range(1-extra,84+extra,1) %}
 
     {% if (i % 4 == 0 and i > 0 and i < 84) %}        
         <div class="gridline-h-bold" style="top: {{ i / 84 * 100}}%; left: 50%;"></div> 
@@ -8,7 +10,7 @@
     
 {% endfor %}
 
-{% for i in range(1-9,160+9,1) %}
+{% for i in range(1-extra,160+extra,1) %}
 
     {% if (i % 4 == 0 and i > 0 and i < 160) %}        
         <div class="gridline-v-bold" style="top: 50%; left: {{i / 160 * 100}}%;"></div>

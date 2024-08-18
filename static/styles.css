@@ -1,11 +1,11 @@
 :root {
-    --main-cell-size: 1.7vw;
+    --main-cell-size: 3.5vh;
     --sub-cell-size: calc(var(--main-cell-size) / 4);
     --field-width: calc(var(--main-cell-size) * 40 + 1px);
     --field-height: calc(var(--main-cell-size) * 21 + 1px);
     --dot-size: 1%;
-    --topbar-height: 10vh;
-    --sidebar-width: calc(var(--topbar-height) * 1.5)
+    --topbar-height: min(20vh, 100px);
+    --sidebar-width: min(25vh, 150px);
 }
 
 *, *::before, *::after {
@@ -44,6 +44,7 @@
     left: 0;
     height: calc(100vh - var(--topbar-height));
     width: calc(100vw - var(--sidebar-width));
+    overflow: scroll;
 }
 
 #contianer {
@@ -72,13 +73,13 @@
 
 .gridline-v {
     width: 0.1%;
-    height: calc(400% / 21 + 100%);
+    height: calc(200% / 21 + 100%);
     background-color: #e1fefe;
     z-index: -2;
 }
 
 .gridline-h {
-    width: 110%;
+    width: 105%;
     height: 0.1%;
     background-color: #e1fefe;
     z-index: -2;
@@ -138,7 +139,12 @@
     color: gray;
 }
 
-@media only screen and (max-width: 768px) {
+@media (orientation: portrait) {
+    :root {
+        --main-cell-size: 2.35vw;
+        --topbar-height: 20vh;
+    }
+
     .sidebar {
         width: 100vw;
         height: var(--topbar-height);
