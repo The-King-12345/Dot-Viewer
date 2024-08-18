@@ -1,4 +1,5 @@
 let playing = false;
+let labeling = true;
 let currentIndex = 1;
 let timer;
 let timeoutIds = [];
@@ -8,6 +9,7 @@ const container = d3.select("#field");
 const playPauseButton = d3.select("#playPauseButton");
 const nextButton = d3.select("#nextButton")
 const prevButton = d3.select("#prevButton")
+const showButton = d3.select("#showButton")
 const pageDisplay = d3.select("#pageDisplay")
 const measureDisplay = d3.select("#measuresDisplay")
 const countsDisplay = d3.select("#countsDisplay")
@@ -26,6 +28,14 @@ async function main() {
             prev();
         } else {
             startAnimation();
+        }
+    });
+
+    showButton.on("click", function() {
+        if (labeling) {
+            hideLabels();
+        } else {
+            showLabels();
         }
     });
 
@@ -81,6 +91,7 @@ async function startAudio(callback) {
     }, { once: true });
 }
 
+
 function stopAudio() {
     audio.pause();
 }
@@ -106,6 +117,24 @@ function pauseAnimation() {
     
     const filtered = dots_data.filter(d => d.page_id === currentIndex);
     container.selectAll(".dot").data(filtered, d => d.performer_id).interrupt();
+}
+
+
+function showLabels() {
+    labeling = true;
+    showButton.text("I");
+
+    container.selectAll(".dot")
+        .style('color', "gray")
+}
+
+
+function hideLabels() {
+    labeling = false;
+    showButton.text("O");
+
+    container.selectAll(".dot")
+        .style('color', "rgba(0, 0, 0, 0)")
 }
 
 
@@ -173,7 +202,7 @@ function updateDisplay(page_id) {
     if (playing) {
         const prevPage = getPage(page_id-1)
 
-        pageDisplay.text(`${prevPage.page}-${page.page}`);
+        pageDisplay.text(`${prevPage.page} - ${page.page}`);
         measureDisplay.text(page.measures);
 
     } else {
