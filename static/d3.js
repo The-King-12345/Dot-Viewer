@@ -154,7 +154,12 @@ async function animate() {
     container.selectAll(".dot")
         .data(filtered, d => d.performer_id)
         .transition()
-        .duration(duration)
+        .delay(function(d) {
+            return (60 / page.tempo * d.start * 1000); 
+        })
+        .duration(function(d) {
+            return (duration - (60 / page.tempo * (d.start + d.stop) * 1000)); 
+        })
         .ease(d3.easeLinear)
         .style("top", function(d) {
             return `${d.hash + d.hash_steps * 25/21}%`

@@ -35,38 +35,81 @@ def main():
 
 
 def add_info(db_path):
+    add_timestamps(db_path)
+    add_holds(db_path)
+
+
+def add_holds(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
+    # add columns
+    cursor.execute("PRAGMA table_info(dots);")
+    columns = [row[1] for row in cursor.fetchall()]
+
+    if "start" not in columns:
+        cursor.execute("ALTER TABLE dots ADD COLUMN start INTEGER NOT NULL DEFAULT 0")
+    if "stop" not in columns:
+        cursor.execute("ALTER TABLE dots ADD COLUMN stop INTEGER NOT NULL DEFAULT 0")
+
+    conn.commit()
+
+    # MANUALLY populate holds
+    cursor.execute("UPDATE dots SET start = 0, stop = 0")
+
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE symbol IN (?))''', (12,12,"2","s"))
+
+    cursor.execute("UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,4,"8"))
+    cursor.execute("UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,3,"9"))
+
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE symbol IN (?,?))''', (0,8,"12","s","X"))
+    
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE performer IN (?,?,?,?,?,?,?))
+                   ''', (0,6,"14","Sousaphone ","Baritone ","Trombone ","Tenor Saxophone ","Bari Saxophone ", "Bass Clarinet ", "Tenor Drum "))
+    
+    conn.commit()
+    print("Holds added successfully")
+    cursor.close()
+    conn.close()
+
+
+def add_timestamps(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # add columns
     cursor.execute("PRAGMA table_info(pages);")
     columns = [row[1] for row in cursor.fetchall()]
 
     if "tempo" not in columns:
         cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 160")
-        conn.commit()
     if "timestamp" not in columns:
         cursor.execute("ALTER TABLE pages ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0")
-        conn.commit()
 
-    # populate timestamp
+    conn.commit()
+
+    # populate timestamps
+    cursor.execute("UPDATE pages SET tempo = 160, timestamp = 0")
+
     time = 0.45
 
     try:
-        cursor.execute("SELECT id, counts, tempo FROM pages")
+        cursor.execute("SELECT id, page, counts, tempo FROM pages")
     except sqlite3.Error as e:
         print(f"ERROR at populate_timestamp: {e}")
     rows = cursor.fetchall()
 
     for row in rows:
-        time += 60 / row[2] * row[1]
+        time += 60 / row[3] * row[2]
         cursor.execute("UPDATE pages SET timestamp = ? WHERE id = ?", (time, row[0]))
-        conn.commit()
 
-    print("Info added successfully")
-
+    conn.commit()
+    print("Timestamps added successfully")
     cursor.close()
     conn.close()
-    return
 
 
 def populate(db_path, txt_path):
@@ -185,10 +228,8 @@ def populate(db_path, txt_path):
 
     
     print("Data inserted successfully")
-
     cursor.close()
     conn.close()
-    return
 
 
 def extract_text_from_pdf(path):
@@ -258,12 +299,10 @@ def create_tables(path):
         )
     ''')
 
-    print("Tables created successfully.")
-
     conn.commit()
+    print("Tables created successfully.")
     cursor.close()
     conn.close()
-    return
 
 
 if __name__ == "__main__":
