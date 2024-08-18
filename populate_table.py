@@ -3,7 +3,7 @@ import pdfplumber
 import re
 import argparse
 
-PDF_PATH = "./static/pdf.pdf"
+PDF_PATH = "./static/mvt1.pdf"
 DATABASE_PATH = "./static/database.db"
 TEXT_PATH = "./static/text.txt"
 
@@ -78,14 +78,19 @@ def populate(db_path, txt_path):
         for line in lines:
 
             # populate performers
-            if matches := re.search(r"Performer: (.+) Symbol: ([a-zA-Z]) Label: (.+)? ?ID:.+", line):
+            if matches := re.search(r"Performer: (.+)? ?Symbol: ([a-zA-Z]) Label: (.+)? ?ID:.+", line):
                 try:
+                    if matches.group(1) == None:
+                        performer = "(unnamed)"
+                    else:
+                        performer = matches.group(1)
+                    
                     if matches.group(3) == None:
                         label = "(unlabeled)"
                     else: 
                         label = matches.group(3)
 
-                    cursor.execute("INSERT INTO performers (performer, symbol, label) VALUES(?, ?, ?)", (matches.group(1), matches.group(2), label))
+                    cursor.execute("INSERT INTO performers (performer, symbol, label) VALUES(?, ?, ?)", (performer, matches.group(2), label))
                     conn.commit()
                 except sqlite3.Error as e:
                     print(f"ERROR at populate_performers: {e}")
