@@ -1,11 +1,11 @@
 :root {
-    --main-cell-size: 3.5vh;
+    --main-cell-size: 3.5dvh;
     --sub-cell-size: calc(var(--main-cell-size) / 4);
     --field-width: calc(var(--main-cell-size) * 40 + 1px);
     --field-height: calc(var(--main-cell-size) * 21 + 1px);
     --dot-size: 1%;
-    --topbar-height: min(20vh, 100px);
-    --sidebar-width: min(25vh, 150px);
+    --topbar-height: min(20dvh, 100px);
+    --sidebar-width: min(25dvh, 150px);
 }
 
 *, *::before, *::after {
@@ -19,7 +19,7 @@
     top: 0;
     left: 0;
     height: var(--topbar-height);
-    width: 100vw;
+    width: 100dvw;
     z-index: 999;
     background-color: rgba(0, 0, 0, 0.7);
 }
@@ -27,7 +27,7 @@
 .sidebar {
     position: fixed;
     width: calc(var(--sidebar-width));
-    height: calc(100vh - var(--topbar-height));
+    height: calc(100dvh - var(--topbar-height));
     top: var(--topbar-height);
     right: 0;
     z-index: 998;
@@ -42,8 +42,8 @@
     position: relative;
     top: var(--topbar-height);
     left: 0;
-    height: calc(100vh - var(--topbar-height));
-    width: calc(100vw - var(--sidebar-width));
+    height: calc(100dvh - var(--topbar-height));
+    width: calc(100dvw - var(--sidebar-width));
     overflow: scroll;
 }
 
@@ -120,7 +120,7 @@
 }
 
 .number {
-    font-size: 2vw;
+    font-size: 2dvw;
     font-weight: bolder;
     color: #c0c0c0;
 
@@ -135,20 +135,20 @@
     background-color: black;
     border-radius: 50%;
     font-weight: bold;
-    font-size: .4vw;
+    font-size: .4dvw;
     color: gray;
 }
 
 @media (orientation: portrait) {
     :root {
-        --main-cell-size: 2.35vw;
-        --topbar-height: 20vh;
+        --main-cell-size: 2.35dvw;
+        --topbar-height: 20dvh;
     }
 
     .sidebar {
-        width: 100vw;
+        width: 100dvw;
         height: var(--topbar-height);
-        top: calc(100vh - var(--topbar-height));
+        top: calc(100dvh - var(--topbar-height));
         left: 0;
     }
 
@@ -159,7 +159,7 @@
     .main-container {
         top: var(--topbar-height);
         left: 0;
-        height: calc(100vh - var(--topbar-height) - var(--topbar-height));
-        width: 100vw;
+        height: calc(100dvh - var(--topbar-height) - var(--topbar-height));
+        width: 100dvw;
     }
 }
