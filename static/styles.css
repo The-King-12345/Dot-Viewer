@@ -75,28 +75,28 @@
     width: 0.1%;
     height: calc(200% / 21 + 100%);
     background-color: #e1fefe;
-    z-index: -2;
+    z-index: -10;
 }
 
 .gridline-h {
     width: 105%;
     height: 0.1%;
     background-color: #e1fefe;
-    z-index: -2;
+    z-index: -10;
 }
 
 .gridline-v-bold {
     width: 0.1%;
     height: 100%;
     background-color: #8cbfd7;
-    z-index: -1;
+    z-index: -5;
 }    
 
 .gridline-h-bold {
     width: 100%;
     height: 0.1%;
     background-color: #8cbfd7;
-    z-index: -1;
+    z-index: -5;
 }
 
 .hash {
@@ -120,9 +120,12 @@
 }
 
 .number {
-    font-size: 2dvw;
+    font-size: calc(var(--main-cell-size) * 1.3);
     font-weight: bolder;
     color: #c0c0c0;
+    text-align: center;
+    justify-content: center;
+    z-index: -1;
 
     user-select: none;
     -webkit-user-select: none; /* For Safari */
