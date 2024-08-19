@@ -139,9 +139,19 @@
     height: var(--dot-size);
     background-color: black;
     border-radius: 50%;
+    z-index: 1;
+
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: center;
     font-weight: bold;
     font-size: .4dvw;
     color: gray;
+    text-shadow: 
+        1px 1px 0 rgba(255,255,255,0.7),
+        -1px -1px 0 rgba(255,255,255,0.7), 
+        1px -1px 0 rgba(255,255,255,0.7),
+        -1px 1px 0 rgba(255,255,255,0.7);
 }
 
 @media (orientation: portrait) {

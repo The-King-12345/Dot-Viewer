@@ -1,5 +1,6 @@
 let playing = false;
 let labeling = true;
+let flipping= false;
 let currentIndex = 1;
 let timer;
 let timeoutIds = [];
@@ -10,6 +11,7 @@ const playPauseButton = d3.select("#playPauseButton");
 const nextButton = d3.select("#nextButton")
 const prevButton = d3.select("#prevButton")
 const showButton = d3.select("#showButton")
+const flipButton = d3.select("#flipButton")
 const pageDisplay = d3.select("#pageDisplay")
 const measureDisplay = d3.select("#measuresDisplay")
 const countsDisplay = d3.select("#countsDisplay")
@@ -32,10 +34,17 @@ async function main() {
     });
 
     showButton.on("click", function() {
-        if (labeling) {
-            hideLabels();
+        toggleLabels();
+    });
+
+    flipButton.on("click", function() {
+        flipView();
+        
+        if (playing) {
+            pauseAnimation();
+            prev();
         } else {
-            showLabels();
+            updateDots(currentIndex);
         }
     });
 
@@ -120,21 +129,31 @@ function pauseAnimation() {
 }
 
 
-function showLabels() {
-    labeling = true;
-    showButton.text("I");
+function toggleLabels() {
+    if (labeling) {
+        labeling = false;
+        showButton.text("O");
+        container.selectAll(".dot")
+            .style('color', "rgba(0, 0, 0, 0)")
 
-    container.selectAll(".dot")
-        .style('color', "gray")
+    } else {
+        labeling = true;
+        showButton.text("I");
+        container.selectAll(".dot")
+            .style('color', "gray")
+
+    }
 }
 
 
-function hideLabels() {
-    labeling = false;
-    showButton.text("O");
-
-    container.selectAll(".dot")
-        .style('color', "rgba(0, 0, 0, 0)")
+function flipView() {
+    if (flipping) {
+        flipping = false;
+        flipButton.text("v")
+    } else {
+        flipping = true;
+        flipButton.text("^")
+    }
 }
 
 
@@ -161,15 +180,11 @@ async function animate() {
             return (duration - (60 / page.tempo * (d.start + d.stop) * 1000)); 
         })
         .ease(d3.easeLinear)
-        .style("top", function(d) {
-            return `${d.hash + d.hash_steps * 25/21}%`
+        .style("top", function(d){
+            return getTop(d);
         })
         .style("left", function(d) {
-            if (d.side == 1) {
-                return `${d.yd + d.yd_steps * 5/8}%`;
-            } else {
-                return `${(d.yd + d.yd_steps * 5/8) * -1 + 100}%`;
-            }
+            return getLeft(d);
         });
 
     for (let i = 0; i < counts; i++) {
@@ -205,7 +220,7 @@ function updateDisplay(page_id) {
     const page = getPage(page_id);
 
     if (playing) {
-        const prevPage = getPage(page_id-1)
+        const prevPage = getPage(page_id-1);
 
         pageDisplay.text(`${prevPage.page} - ${page.page}`);
         measureDisplay.text(page.measures);
@@ -219,10 +234,10 @@ function updateDisplay(page_id) {
 
 
 function initializeDots(page_id) {
-    const filtered = dots_data.filter(d => d.page_id === page_id)
+    const filtered = dots_data.filter(d => d.page_id === page_id);
 
     const dots = container.selectAll(".dot")
-        .data(filtered, d => d.performer_id)
+        .data(filtered, d => d.performer_id);
 
     dots.enter()
         .append("div")
@@ -237,15 +252,11 @@ function initializeDots(page_id) {
             
             return `‎\n${label}`;
         })
-        .style("top", function(d) {
-            return `${d.hash + d.hash_steps * 25/21}%`;
+        .style("top", function(d){
+            return getTop(d);
         })
         .style("left", function(d) {
-            if (d.side == 1) {
-                return `${d.yd + d.yd_steps * 5/8}%`;
-            } else {
-                return `${(d.yd + d.yd_steps * 5/8) * -1 + 100}%`;
-            }
+            return getLeft(d);
         });
 
     dots.exit().remove();
@@ -253,25 +264,39 @@ function initializeDots(page_id) {
 
 
 function updateDots(page_id) {
-    const filtered = dots_data.filter(d => d.page_id === page_id)
+    const filtered = dots_data.filter(d => d.page_id === page_id);
 
     const dots = container.selectAll(".dot")
-        .data(filtered, d => d.performer_id)
+        .data(filtered, d => d.performer_id);
 
     dots.enter()
         .merge(dots)
-        .style("top", function(d) {
-            return `${d.hash + d.hash_steps * 25/21}%`
+        .style("top", function(d){
+            return getTop(d);
         })
         .style("left", function(d) {
-            if (d.side == 1) {
-                return `${d.yd + d.yd_steps * 5/8}%`;
-            } else {
-                return `${(d.yd + d.yd_steps * 5/8) * -1 + 100}%`;
-            }
+            return getLeft(d);
         });
 
     dots.exit().remove();
+}
+
+
+function getTop(d) {
+    if (flipping) {
+        return `${100 - (d.hash + d.hash_steps * 25/21)}%`;
+    } else {
+        return `${d.hash + d.hash_steps * 25/21}%`;
+    }
+}
+
+
+function getLeft(d) {
+    if ((d.side == 1 && flipping == false) || (d.side == 2 && flipping == true)) {
+        return `${d.yd + d.yd_steps * 5/8}%`;
+    } else {
+        return `${(d.yd + d.yd_steps * 5/8) * -1 + 100}%`;
+    }
 }
 
 
