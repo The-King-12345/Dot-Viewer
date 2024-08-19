@@ -134,13 +134,15 @@ function toggleLabels() {
         labeling = false;
         showButton.text("O");
         container.selectAll(".dot")
-            .style('color', "rgba(0, 0, 0, 0)")
+            .style("color", "rgba(0, 0, 0, 0)")
+            .style("text-shadow", "none");
 
     } else {
         labeling = true;
         showButton.text("I");
         container.selectAll(".dot")
-            .style('color', "gray")
+            .style("color", "gray")
+            .style("text-shadow", "1px 1px 0 rgba(255,255,255,0.7),-1px -1px 0 rgba(255,255,255,0.7),1px -1px 0 rgba(255,255,255,0.7),-1px 1px 0 rgba(255,255,255,0.7)");
 
     }
 }
