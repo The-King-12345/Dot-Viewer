@@ -66,6 +66,7 @@ function next() {
     }
     
     updateDisplay(currentIndex);
+    initializeDots(currentIndex);
     updateDots(currentIndex);
 }
 
@@ -76,6 +77,7 @@ function prev() {
     }
 
     updateDisplay(currentIndex);
+    initializeDots(currentIndex);
     updateDots(currentIndex);
 }
 
@@ -196,7 +198,14 @@ async function animate() {
         timeoutIds.push(timeoutId);
     }
 
-    timer = setTimeout(() => animate(), duration);
+    if (page.id == 23) {
+        console.log("True");
+        timer = setTimeout(() => animate(), duration+(60/107*15*1000)); //15 count delay
+    } else {
+        console.log("okay");
+        timer = setTimeout(() => animate(), duration);
+    }
+    
 }
 
 

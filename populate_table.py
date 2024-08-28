@@ -3,7 +3,8 @@ import pdfplumber
 import re
 import argparse
 
-PDF_PATH = "./static/mvt1.pdf"
+MVT1_PATH = "./static/mvt1.pdf"
+MVT2_PATH = "./static/mvt2.pdf"
 DATABASE_PATH = "./static/database.db"
 TEXT_PATH = "./static/text.txt"
 
@@ -26,7 +27,7 @@ def main():
     if args.create:
         create_tables(DATABASE_PATH)
     if args.text:
-        text = extract_text_from_pdf(PDF_PATH)
+        text = extract_text_from_pdf(MVT1_PATH, MVT2_PATH)
         create_text_file(TEXT_PATH, text)
     if args.populate:
         populate(DATABASE_PATH, TEXT_PATH)
@@ -85,25 +86,34 @@ def add_timestamps(db_path):
     columns = [row[1] for row in cursor.fetchall()]
 
     if "tempo" not in columns:
-        cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 160")
+        cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 0")
     if "timestamp" not in columns:
         cursor.execute("ALTER TABLE pages ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0")
+    if "mvt" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN mvt INTEGER NOT NULL DEFAULT 0")
 
     conn.commit()
+    cursor.execute("UPDATE pages SET tempo = 0, timestamp = 0, mvt = 0")
+
+    # MANUALLY populate tempo and mvt
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (160,1,1,23))
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (107,2,24,27))
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (132,2,28,37))
 
     # populate timestamps
-    cursor.execute("UPDATE pages SET tempo = 160, timestamp = 0")
-
     time = 0.45
 
     try:
-        cursor.execute("SELECT id, page, counts, tempo FROM pages")
+        cursor.execute("SELECT id, page, counts, tempo, mvt FROM pages")
     except sqlite3.Error as e:
         print(f"ERROR at populate_timestamp: {e}")
     rows = cursor.fetchall()
 
     for row in rows:
-        time += 60 / row[3] * row[2]
+        if row[0] == 23:
+            time += 60 / 107 * 15 #manual delay
+
+        time += 60 / row[3] * row[2] # 60 / tempo * counts
         cursor.execute("UPDATE pages SET timestamp = ? WHERE id = ?", (time, row[0]))
 
     conn.commit()
@@ -118,10 +128,13 @@ def populate(db_path, txt_path):
 
     with open(txt_path, "r") as txt_file:
         lines = txt_file.readlines()
+
+        performer_id = "ERROR"
+
         for line in lines:
 
             # populate performers
-            if matches := re.search(r"Performer: (.+)? ?Symbol: ([a-zA-Z]) Label: (.+)? ?ID:.+", line):
+            if matches := re.search(r"Performer: (.+)? ?Symbol: ([a-zA-Z]) Label: (.+)? ?ID:(\d+) PHS .+", line):
                 try:
                     if matches.group(1) == None:
                         performer = "(unnamed)"
@@ -133,13 +146,21 @@ def populate(db_path, txt_path):
                     else: 
                         label = matches.group(3)
 
-                    cursor.execute("INSERT INTO performers (performer, symbol, label) VALUES(?, ?, ?)", (performer, matches.group(2), label))
-                    conn.commit()
+                    performer_id = matches.group(4)
+
+                    cursor.execute("SELECT 1 FROM performers WHERE id = ?", (performer_id,))
+                    exists = cursor.fetchone()
+
+                    # If the performer doesn't exist, insert the new record
+                    if not exists:
+                        cursor.execute("INSERT INTO performers (id, performer, symbol, label) VALUES(?, ?, ?, ?)",(performer_id, performer, matches.group(2), label))
+                        conn.commit()
+
                 except sqlite3.Error as e:
                     print(f"ERROR at populate_performers: {e}")
             
             # populate dots and pages
-            elif matches := re.search(r"(\d+A?) (\d+(?: ?\- ?\d+)?) (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
+            elif matches := re.search(r"(\d+[A-Z]?) (\d+(?: ?\- ?\d+)?) (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
                 page = matches.group(1)
                 measures = matches.group(2) 
                 counts = int(matches.group(3))
@@ -197,13 +218,6 @@ def populate(db_path, txt_path):
                         conn.commit()
                     except sqlite3.Error as e:
                         print(f"ERROR at populate_pages: {e}")
-                
-                # get performer_id
-                try:
-                    cursor.execute("SELECT id FROM performers ORDER BY id DESC LIMIT 1")
-                except sqlite3.Error as e:
-                    print(f"ERROR at get_performer_id: {e}")
-                performer_id = cursor.fetchone()[0]
 
                 # get page_id
                 try:
@@ -212,12 +226,18 @@ def populate(db_path, txt_path):
                     print(f"ERROR at get_page_id: {e}")
                 page_id = cursor.fetchone()[0]
 
+
                 # populate dots
-                try:
-                    cursor.execute("INSERT INTO dots (performer_id, page_id, side, yd_steps, yd, hash_steps, hash) VALUES(?, ?, ?, ?, ?, ?, ?)", (performer_id, page_id, side, yd_steps, yd, hash_steps, hash))
-                    conn.commit()
-                except sqlite3.Error as e:
-                    print(f"ERROR at populate_dots: {e}")
+                cursor.execute("SELECT 1 FROM dots WHERE performer_id = ? AND page_id = ?", (performer_id, page_id))
+                exists = cursor.fetchone()
+
+                # If the performer doesn't exist, insert the new record
+                if not exists:
+                    try:
+                        cursor.execute("INSERT INTO dots (performer_id, page_id, side, yd_steps, yd, hash_steps, hash) VALUES(?, ?, ?, ?, ?, ?, ?)", (performer_id, page_id, side, yd_steps, yd, hash_steps, hash))
+                        conn.commit()
+                    except sqlite3.Error as e:
+                        print(f"ERROR at populate_dots: {e}")
 
             elif matches := re.search(r"^Printed: .+", line):
                 pass
@@ -232,9 +252,22 @@ def populate(db_path, txt_path):
     conn.close()
 
 
-def extract_text_from_pdf(path):
+def extract_text_from_pdf(path1, path2):
     text = []
-    with pdfplumber.open(path) as pdf:
+    with pdfplumber.open(path1) as pdf:
+        for page in pdf.pages:
+            width, height = page.width, page.height
+            quarters = [
+                (0, 0, width / 2, height / 2),       # Top-left
+                (width / 2, 0, width, height / 2),   # Top-right
+                (0, height / 2, width / 2, height),  # Bottom-left
+                (width / 2, height / 2, width, height) # Bottom-right
+            ]
+            for quarter in quarters:
+                cropped_page = page.within_bbox(quarter)
+                text.append(cropped_page.extract_text())
+
+    with pdfplumber.open(path2) as pdf:
         for page in pdf.pages:
             width, height = page.width, page.height
             quarters = [
@@ -268,7 +301,7 @@ def create_tables(path):
 
     cursor.execute('''
         CREATE TABLE performers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY UNIQUE NOT NULL,
             performer TEXT NOT NULL,
             symbol TEXT NOT NULL,
             label TEXT NOT NULL
