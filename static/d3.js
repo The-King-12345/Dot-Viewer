@@ -199,10 +199,18 @@ async function animate() {
     }
 
     if (page.id == 23) {
-        console.log("True");
-        timer = setTimeout(() => animate(), duration+(60/107*15*1000)); //15 count delay
+        timer = setTimeout(() => {
+            playing = false;
+            updateDisplay(currentIndex);
+            
+            timer = setTimeout(() => {
+                playing = true;
+                animate()
+            }, (60/107*15*1000)); // 15 s delay
+        }, duration);
+
+        
     } else {
-        console.log("okay");
         timer = setTimeout(() => animate(), duration);
     }
     
