@@ -148,10 +148,10 @@
     font-size: .4dvw;
     color: gray;
     text-shadow:
-        1px 1px 0 rgba(255,255,255,0.7),
-        -1px -1px 0 rgba(255,255,255,0.7), 
-        1px -1px 0 rgba(255,255,255,0.7),
-        -1px 1px 0 rgba(255,255,255,0.7);
+        .03dvw .03dvw 0 rgba(255,255,255,0.7),
+        -.03dvw -.03dvw 0 rgba(255,255,255,0.7), 
+        .03dvw -.03dvw 0 rgba(255,255,255,0.7),
+        -.03dvw .03dvw 0 rgba(255,255,255,0.7);
 }
 
 @media (orientation: portrait) {
