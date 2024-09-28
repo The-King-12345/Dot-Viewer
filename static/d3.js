@@ -21,7 +21,7 @@ const audio = document.getElementById("audio")
 
 async function main() {
     await loadData();
-    updateDisplay(currentIndex);
+    updateDisplay(currentIndex, playing);
     initializeDots(currentIndex);
 
     playPauseButton.on("click", function() {
@@ -65,7 +65,7 @@ function next() {
         currentIndex = (currentIndex + 1);
     }
     
-    updateDisplay(currentIndex);
+    updateDisplay(currentIndex, playing);
     initializeDots(currentIndex);
     updateDots(currentIndex);
 }
@@ -76,7 +76,7 @@ function prev() {
         currentIndex = (currentIndex - 1);
     }
 
-    updateDisplay(currentIndex);
+    updateDisplay(currentIndex, playing);
     initializeDots(currentIndex);
     updateDots(currentIndex);
 }
@@ -167,7 +167,7 @@ async function animate() {
     if (!playing) return;
 
     currentIndex = (currentIndex + 1);
-    updateDisplay(currentIndex);
+    updateDisplay(currentIndex, playing);
     initializeDots(currentIndex);
 
     const page = getPage(currentIndex);
@@ -202,27 +202,27 @@ async function animate() {
 
     if (page.id == 23) {
         timer = setTimeout(() => {
-            playing = false;
-            updateDisplay(currentIndex);
+            updateDisplay(currentIndex, false);
             
             timer = setTimeout(() => {
-                playing = true;
                 animate()
             }, (60/107*7*1000)); // 7 count delay
         }, duration);
 
     } else if (page.id == 37) {
         timer = setTimeout(() => {
-            playing = false;
-            updateDisplay(currentIndex);
-            
+            updateDisplay(currentIndex, false);
+
             timer = setTimeout(() => {
-                playing = true;
                 animate()
             }, (60/160*4*1000)); // 4 count delay
         }, duration);
 
-        
+    } else if (page.id == 63) {
+        timer = setTimeout(() => {
+            updateDisplay(currentIndex, false);
+        }, duration);
+
     } else {
         timer = setTimeout(() => animate(), duration);
     }
@@ -248,10 +248,10 @@ function runningDisplay(page_id, i) {
 }
 
 
-function updateDisplay(page_id) {
+function updateDisplay(page_id, play) {
     const page = getPage(page_id);
 
-    if (playing) {
+    if (play) {
         const prevPage = getPage(page_id-1);
 
         pageDisplay.text(`${prevPage.page} - ${page.page}`);
