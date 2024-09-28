@@ -87,7 +87,9 @@ async function startAudio(callback) {
 
     audio.load();
 
-    audio.currentTime = page.timestamp;        
+    audio.currentTime = page.timestamp;    
+    console.log(page.timestamp);
+    console.log(audio.currentTime);
 
     audio.addEventListener('canplaythrough', () => {
         audio.play().then(() => {
@@ -206,7 +208,18 @@ async function animate() {
             timer = setTimeout(() => {
                 playing = true;
                 animate()
-            }, (60/107*15*1000)); // 15 s delay
+            }, (60/107*7*1000)); // 7 count delay
+        }, duration);
+
+    } else if (page.id == 37) {
+        timer = setTimeout(() => {
+            playing = false;
+            updateDisplay(currentIndex);
+            
+            timer = setTimeout(() => {
+                playing = true;
+                animate()
+            }, (60/160*4*1000)); // 4 count delay
         }, duration);
 
         

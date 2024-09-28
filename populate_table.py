@@ -5,6 +5,7 @@ import argparse
 
 MVT1_PATH = "./static/mvt1.pdf"
 MVT2_PATH = "./static/mvt2.pdf"
+MVT3_PATH = "./static/mvt3.pdf"
 DATABASE_PATH = "./static/database.db"
 TEXT_PATH = "./static/text.txt"
 
@@ -27,7 +28,7 @@ def main():
     if args.create:
         create_tables(DATABASE_PATH)
     if args.text:
-        text = extract_text_from_pdf(MVT1_PATH, MVT2_PATH)
+        text = extract_text_from_pdf(MVT1_PATH, MVT2_PATH, MVT3_PATH)
         create_text_file(TEXT_PATH, text)
     if args.populate:
         populate(DATABASE_PATH, TEXT_PATH)
@@ -38,6 +39,54 @@ def main():
 def add_info(db_path):
     add_timestamps(db_path)
     add_holds(db_path)
+
+
+def add_timestamps(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # add columns
+    cursor.execute("PRAGMA table_info(pages);")
+    columns = [row[1] for row in cursor.fetchall()]
+
+    if "tempo" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 0")
+    if "timestamp" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0")
+    if "mvt" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN mvt INTEGER NOT NULL DEFAULT 0")
+
+    conn.commit()
+    cursor.execute("UPDATE pages SET tempo = 0, timestamp = 0, mvt = 0")
+
+    # MANUALLY populate tempo and mvt
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (160,1,1,23))
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (107,2,24,27))
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (132,2,28,37))
+    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (160,3,38,63))
+
+    # populate timestamps
+    time = 0.45
+
+    try:
+        cursor.execute("SELECT id, page, counts, tempo, mvt FROM pages")
+    except sqlite3.Error as e:
+        print(f"ERROR at populate_timestamp: {e}")
+    rows = cursor.fetchall()
+
+    for row in rows:
+        if row[0] == 23:
+            time += 60 / 107 * 7 #manual delay
+        if row[0] == 37:
+            time += 60 / 160 * 4 #manual delay
+
+        time += 60 / row[3] * row[2] # 60 / tempo * counts
+        cursor.execute("UPDATE pages SET timestamp = ? WHERE id = ?", (time, row[0]))
+
+    conn.commit()
+    print("Timestamps added successfully")
+    cursor.close()
+    conn.close()
 
 
 def add_holds(db_path):
@@ -71,56 +120,26 @@ def add_holds(db_path):
                    AND performer_id IN (SELECT id FROM performers WHERE performer IN (?,?,?,?,?,?,?))
                    ''', (0,6,"14","Sousaphone ","Baritone ","Trombone ","Tenor Saxophone ","Bari Saxophone ", "Bass Clarinet ", "Tenor Drum "))
     
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE symbol IN (?,?))''', (0,8,"39","s","X"))
+    
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE symbol IN (?,?))''', (0,8,"41","s","X"))
+    
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE performer IN (?,?,?,?,?,?))''', (2,2,"44","Flute ","Clarinet ","Alto Saxophone ","Tenor Saxophone ","Bari Saxophone ", "Bass Clarinet "))
+    
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE symbol IN (?))''', (0,4,"52","s"))
+    
+    cursor.execute('''UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) 
+                   AND performer_id IN (SELECT id FROM performers WHERE symbol IN (?))''', (0,4,"53","s"))
+    
     conn.commit()
     print("Holds added successfully")
     cursor.close()
     conn.close()
-
-
-def add_timestamps(db_path):
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # add columns
-    cursor.execute("PRAGMA table_info(pages);")
-    columns = [row[1] for row in cursor.fetchall()]
-
-    if "tempo" not in columns:
-        cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 0")
-    if "timestamp" not in columns:
-        cursor.execute("ALTER TABLE pages ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0")
-    if "mvt" not in columns:
-        cursor.execute("ALTER TABLE pages ADD COLUMN mvt INTEGER NOT NULL DEFAULT 0")
-
-    conn.commit()
-    cursor.execute("UPDATE pages SET tempo = 0, timestamp = 0, mvt = 0")
-
-    # MANUALLY populate tempo and mvt
-    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (160,1,1,23))
-    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (107,2,24,27))
-    cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (132,2,28,37))
-
-    # populate timestamps
-    time = 0.45
-
-    try:
-        cursor.execute("SELECT id, page, counts, tempo, mvt FROM pages")
-    except sqlite3.Error as e:
-        print(f"ERROR at populate_timestamp: {e}")
-    rows = cursor.fetchall()
-
-    for row in rows:
-        if row[0] == 23:
-            time += 60 / 107 * 15 #manual delay
-
-        time += 60 / row[3] * row[2] # 60 / tempo * counts
-        cursor.execute("UPDATE pages SET timestamp = ? WHERE id = ?", (time, row[0]))
-
-    conn.commit()
-    print("Timestamps added successfully")
-    cursor.close()
-    conn.close()
-
+    
 
 def populate(db_path, txt_path):
     conn = sqlite3.connect(db_path)
@@ -160,7 +179,7 @@ def populate(db_path, txt_path):
                     print(f"ERROR at populate_performers: {e}")
             
             # populate dots and pages
-            elif matches := re.search(r"(\d+[A-Z]?) (\d+(?: ?\- ?\d+)?) (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
+            elif matches := re.search(r"(\d+[A-Z]?) (\d+(?: ?\- ?(?:(?:\d+)|end))?) (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
                 page = matches.group(1)
                 measures = matches.group(2) 
                 counts = int(matches.group(3))
@@ -252,7 +271,7 @@ def populate(db_path, txt_path):
     conn.close()
 
 
-def extract_text_from_pdf(path1, path2):
+def extract_text_from_pdf(path1, path2, path3):
     text = []
     with pdfplumber.open(path1) as pdf:
         for page in pdf.pages:
@@ -268,6 +287,19 @@ def extract_text_from_pdf(path1, path2):
                 text.append(cropped_page.extract_text())
 
     with pdfplumber.open(path2) as pdf:
+        for page in pdf.pages:
+            width, height = page.width, page.height
+            quarters = [
+                (0, 0, width / 2, height / 2),       # Top-left
+                (width / 2, 0, width, height / 2),   # Top-right
+                (0, height / 2, width / 2, height),  # Bottom-left
+                (width / 2, height / 2, width, height) # Bottom-right
+            ]
+            for quarter in quarters:
+                cropped_page = page.within_bbox(quarter)
+                text.append(cropped_page.extract_text())
+
+    with pdfplumber.open(path3) as pdf:
         for page in pdf.pages:
             width, height = page.width, page.height
             quarters = [
