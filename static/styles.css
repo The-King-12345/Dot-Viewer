@@ -154,6 +154,15 @@
         -.03dvw .03dvw 0 rgba(255,255,255,0.7);
 }
 
+.btn {
+    touch-action: manipulation;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
 @media (orientation: portrait) {
     :root {
         --main-cell-size: 2.35dvw;
