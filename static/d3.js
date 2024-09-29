@@ -88,8 +88,6 @@ async function startAudio(callback) {
     audio.load();
 
     audio.currentTime = page.timestamp;    
-    console.log(page.timestamp);
-    console.log(audio.currentTime);
 
     audio.addEventListener('canplaythrough', () => {
         audio.play().then(() => {
