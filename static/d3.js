@@ -169,7 +169,7 @@ async function animate() {
     initializeDots(currentIndex);
 
     const page = getPage(currentIndex);
-    const duration = (60 / page.tempo * page.counts * 1000 - 2.5);
+    const duration = (60 / page.tempo * page.counts * 1000 - 7.5);
     const counts = page.counts;
 
     const filtered = dots_data.filter(d => d.page_id === currentIndex);
