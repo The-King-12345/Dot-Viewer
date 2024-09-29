@@ -66,7 +66,7 @@ def add_timestamps(db_path):
     cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ? AND id <= ?", (160,3,38,63))
 
     # populate timestamps
-    time = 0.45
+    time = 0.65
 
     try:
         cursor.execute("SELECT id, page, counts, tempo, mvt FROM pages")
