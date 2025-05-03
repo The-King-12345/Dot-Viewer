@@ -11,57 +11,12 @@
         <link href="/static/styles.css" rel="stylesheet">
         <link rel="icon" href="static/favicon.ico" type="image/x-icon">
 
-        <script src="https://d3js.org/d3.v6.min.js"></script>
-        <script src="../static/d3.js" defer></script>
-        <script src="../static/scroll.js" defer></script>
+        {% block scripts %}{% endblock %}
     
         <title>{% block title %}{% endblock %}</title>
     </head>
 
     <body>  
-        
-        <div class="topbar">
-            <form class="w-100 h-100 d-flex justify-content-around align-items-center">
-
-                <div class="text-light text-center">
-                    <div>Page</div>
-                    <div id="pageDisplay"></div>
-                </div>
-                <div class="text-light text-center">
-                    <div>Measures</div>
-                    <div id="measuresDisplay"></div>
-                </div>
-                <div class="text-light text-center">
-                    <div>Counts</div>
-                    <div id="countsDisplay"></div>
-                </div>
-
-            </form>
-        </div>
-
-        <div class="sidebar">
-            <div class="sidebar-flex w-100 h-100 d-flex justify-content-around align-items-center">
-
-                    <button id="playPauseButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">Play</button>
-                    <button id="nextButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">+</button>
-                    <button id="prevButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">-</button>
-                    <button id="showButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">I</button>
-                    <button id="flipButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">v</button>
-                
-            </div>
-        </div>   
-
-        <div class="main-container">
-            <div id="container" class="w-100 h-100">
-                <div id="zoomable-flexbox" class="w-100 h-100 d-flex justify-content-center align-items-center">
-                    {% block main %}{% endblock %}
-                </div>
-            </div>
-        </div>
-
-        <audio id="audio">
-            <source src="/static/audio.mp3" type="audio/mp3">
-        </audio>
-
+        {% block body %}{% endblock %}
     </body>
 </html>

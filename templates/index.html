@@ -4,16 +4,37 @@
     Dot Viewer
 {% endblock %}
 
-{% block main %}
-    
-    <div id="field" class="field">
+{% block scripts %}
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="../static/d3.js" defer></script>
+    <script src="../static/scroll.js" defer></script>
+{% endblock %}
 
-        {% include "snippets/grid.html" %}
-        {% include "snippets/sideline.html" %}
-        {% include "snippets/yardline.html" %}
-        {% include "snippets/hash.html" %}
-        {% include "snippets/number.html" %}
-        
-    </div>
+{% block body %}
+
+    {% include "snippets/topbar.html" %}
+    {% include "snippets/sidebar.html" %}
+
+    <div class="main-container">
+            <div id="container" class="w-100 h-100">
+                <div id="zoomable-flexbox" class="w-100 h-100 d-flex justify-content-center align-items-center">
+                    
+                    <div id="field" class="field">
+
+                        {% include "snippets/grid.html" %}
+                        {% include "snippets/sideline.html" %}
+                        {% include "snippets/yardline.html" %}
+                        {% include "snippets/hash.html" %}
+                        {% include "snippets/number.html" %}
+                        
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    <audio id="audio">
+        <source src="/static/audio.mp3" type="audio/mp3">
+    </audio>
 
 {% endblock %} 
