@@ -194,3 +194,72 @@ def populate(db_path, txt):
     print("Data inserted successfully")
     cursor.close()
     conn.close()
+
+def add_timestamps(db_path, startDelay, tempos: list, delays: dict):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # add columns
+    cursor.execute("PRAGMA table_info(pages);")
+    columns = [row[1] for row in cursor.fetchall()]
+
+    if "tempo" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN tempo INTEGER NOT NULL DEFAULT 0")
+    if "timestamp" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0")
+    if "mvt" not in columns:
+        cursor.execute("ALTER TABLE pages ADD COLUMN mvt INTEGER NOT NULL DEFAULT 0")
+
+    conn.commit()
+    cursor.execute("UPDATE pages SET tempo = 0, timestamp = 0, mvt = 0")
+
+    # MANUALLY populate tempo and mvt
+    for t in tempos:
+        cursor.execute("UPDATE pages SET tempo = ?, mvt = ? WHERE id >= ?", (t[0],t[1],t[2])) #tempo, movement, start
+
+    # populate timestamps
+    time = startDelay 
+
+    try:
+        cursor.execute("SELECT id, page, counts, tempo, mvt FROM pages")
+    except sqlite3.Error as e:
+        print(f"ERROR at populate_timestamp: {e}")
+    rows = cursor.fetchall()
+
+    for row in rows:
+        if row[0] in delays:
+            time += delays[row[0]] #manual delay
+
+        time += 60 / row[3] * row[2] # 60 / tempo * counts
+        cursor.execute("UPDATE pages SET timestamp = ? WHERE id = ?", (time, row[0]))
+
+    conn.commit()
+    print("Timestamps added successfully")
+    cursor.close()
+    conn.close()
+
+def add_holds(db_path, holds: list[str]):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # add columns
+    cursor.execute("PRAGMA table_info(dots);")
+    columns = [row[1] for row in cursor.fetchall()]
+
+    if "start" not in columns:
+        cursor.execute("ALTER TABLE dots ADD COLUMN start INTEGER NOT NULL DEFAULT 0")
+    if "stop" not in columns:
+        cursor.execute("ALTER TABLE dots ADD COLUMN stop INTEGER NOT NULL DEFAULT 0")
+
+    conn.commit()
+
+    # MANUALLY populate holds
+    cursor.execute("UPDATE dots SET start = 0, stop = 0")
+
+    for hold in holds:
+        cursor.execute(hold)
+
+    conn.commit()
+    print("Holds added successfully")
+    cursor.close()
+    conn.close()

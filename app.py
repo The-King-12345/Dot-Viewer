@@ -4,7 +4,7 @@ import sqlite3
 import os
 import uuid
 from werkzeug.utils import secure_filename
-from populate_upload import single_pdf_to_text, create_tables, populate
+from populate_upload import single_pdf_to_text, create_tables, populate, add_timestamps, add_holds  
 
 DEFAULT_DB_PATH = "static/database.db"
 
@@ -58,11 +58,15 @@ def upload():
             file.save(filepath)
 
             text = single_pdf_to_text(filepath)
-
             db_path = get_user_db()
+
             create_tables(db_path)
             populate(db_path, text)
+            add_timestamps(db_path, 0, [[160, 1, 1]], {}) # startDelay, tempos, delays
+            add_holds(db_path, []) # holds
 
+
+            # store db_path
             session["db_path"] = db_path
 
             return render_template("index.html")
