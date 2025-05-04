@@ -3,3 +3,5 @@ flask_session
 .venv
 *.pdf
 *.txt
+/uploads
+/user_databases

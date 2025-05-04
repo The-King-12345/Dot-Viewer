@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dot Viewer
+{% endblock %}
+
+{% block body %}
+    
+    <div id="container" class="w-100 h-100">
+        <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+            
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <label for="pdf">Upload a PDF:</label>
+                <input type="file" name="pdf" accept="application/pdf" required>
+                <button type="submit">Submit</button>
+            </form>
+
+        </div>
+    </div>
+ 
+{% endblock %} 
