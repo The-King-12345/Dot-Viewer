@@ -4,10 +4,8 @@ import re
 import hashlib
 import argparse
 
-def single_pdf_to_text(path):
-    text = []
-    
-    with pdfplumber.open(path) as pdf:
+def pdf_to_populate(pdf_path, db_path):
+    with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
             width, height = page.width, page.height
             quarters = [
@@ -17,9 +15,7 @@ def single_pdf_to_text(path):
                 (width / 2, height / 2, width, height) # Bottom-right
             ]
             for quarter in quarters:
-                cropped_page = page.within_bbox(quarter)
-                text.append(cropped_page.extract_text())
-    return "\n".join(text)
+                populate(db_path, page.within_bbox(quarter).extract_text())
 
 def create_tables(path):
     conn = sqlite3.connect(path)
