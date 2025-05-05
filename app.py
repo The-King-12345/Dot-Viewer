@@ -33,7 +33,7 @@ def get_user_db():
     if "session_id" not in session:
         session["session_id"] = str(uuid.uuid4())
     
-    db_path = os.path.join(app.config["USER_DB_FOLDER"], f"{session["session_id"]}.db")
+    db_path = os.path.join(app.config["USER_DB_FOLDER"], f"{session['session_id']}.db")
     return db_path
 
 @app.route("/", methods=["GET"])
