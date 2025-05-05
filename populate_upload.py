@@ -1,6 +1,7 @@
 import sqlite3
 import pdfplumber
 import re
+import hashlib
 import argparse
 
 def single_pdf_to_text(path):
@@ -77,36 +78,53 @@ def populate(db_path, txt):
 
     for line in lines:
 
-        # populate performers
-        if matches := re.search(r"Performer: (.+)? ?Symbol: ([a-zA-Z]) Label: (.+)? ?ID:(\d+) PHS .+", line):
+        # populate performers 
+        if matches := re.search(r"Performer: (.+)? ?Symbol: ([a-zA-Z]) Label: (\S+) ?(?:ID:(\d+))? [a-zA-Z].+", line):
             try:
                 if matches.group(1) == None:
                     performer = "(unnamed)"
                 else:
                     performer = matches.group(1)
                 
+                symbol = matches.group(2)
+
                 if matches.group(3) == None:
                     label = "(unlabeled)"
                 else: 
                     label = matches.group(3)
 
-                performer_id = matches.group(4)
+                    # add the symbol in front of label if not already
+                    if label.isdigit():
+                        label = symbol + label
+
+                if matches.group(4) == None:
+                    # create unique performer id
+                    hash_bytes = hashlib.sha256((symbol + label).encode()).digest()
+                    performer_id = int.from_bytes(hash_bytes, byteorder='big') % 10**10
+
+                    if label == "(unlabeled)":
+                        print(f"Possible duplicate: {symbol}, {label}")
+                else: 
+                    performer_id = matches.group(4)
 
                 cursor.execute("SELECT 1 FROM performers WHERE id = ?", (performer_id,))
                 exists = cursor.fetchone()
 
                 # If the performer doesn't exist, insert the new record
                 if not exists:
-                    cursor.execute("INSERT INTO performers (id, performer, symbol, label) VALUES(?, ?, ?, ?)",(performer_id, performer, matches.group(2), label))
+                    cursor.execute("INSERT INTO performers (id, performer, symbol, label) VALUES(?, ?, ?, ?)",(performer_id, performer, symbol, label))
                     conn.commit()
 
             except sqlite3.Error as e:
                 print(f"ERROR at populate_performers: {e}")
         
         # populate dots and pages
-        elif matches := re.search(r"(\d+[A-Z]?) (\d+(?: ?\- ?(?:(?:\d+)|end))?) (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
+        elif matches := re.search(r"(\d+[A-Z]?) ?(\d+(?: ?\- ?(?:(?:\d+)|end))?)? (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
             page = matches.group(1)
-            measures = matches.group(2) 
+            if matches.group(2) == None:
+                measures = "-"
+            else:
+                measures = matches.group(2) 
             counts = int(matches.group(3))
             yd = int(matches.group(8))
             
@@ -186,6 +204,8 @@ def populate(db_path, txt):
         elif matches := re.search(r"^Printed: .+", line):
             pass
         elif matches := re.search(r"^Set Measure .+", line):
+            pass
+        elif matches := re.search(r"^Page.+", line):
             pass
         else:
             print("No match: ", line)
