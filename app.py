@@ -6,7 +6,7 @@ import uuid
 from werkzeug.utils import secure_filename
 from populate_upload import pdf_to_populate, create_tables, populate, add_timestamps, add_holds  
 
-DEFAULT_DB_PATH = "static/database.db"
+DEFAULT_DB_PATH = "static/PoP2024/database.db"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
