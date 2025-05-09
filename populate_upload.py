@@ -1,21 +1,14 @@
 import sqlite3
-import pdfplumber
+from pypdf import PdfReader
 import re
 import hashlib
-import argparse
 
 def pdf_to_populate(pdf_path, db_path):
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            width, height = page.width, page.height
-            quarters = [
-                (0, 0, width / 2, height / 2),       # Top-left
-                (width / 2, 0, width, height / 2),   # Top-right
-                (0, height / 2, width / 2, height),  # Bottom-left
-                (width / 2, height / 2, width, height) # Bottom-right
-            ]
-            for quarter in quarters:
-                populate(db_path, page.within_bbox(quarter).extract_text())
+    reader = PdfReader(pdf_path)
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            populate(db_path, text)
 
 def create_tables(path):
     conn = sqlite3.connect(path)
@@ -64,6 +57,141 @@ def create_tables(path):
     cursor.close()
     conn.close()
 
+# returns performer_id
+def populate_performers(conn, cursor, line):
+    if matches := re.search(r"Performer: (.+)? *Symbol: ([a-zA-Z]) *Label: (\S+) *(?:ID:(\d+))? *[a-zA-Z].+", line):
+        try:
+            if matches.group(1) == None:
+                performer = "(unnamed)"
+            else:
+                performer = matches.group(1)
+            
+            symbol = matches.group(2)
+
+            if matches.group(3) == None:
+                label = "(unlabeled)"
+            else: 
+                label = matches.group(3)
+
+                # add the symbol in front of label if not already
+                if label.isdigit():
+                    label = symbol + label
+
+            if matches.group(4) == None:
+                # create unique performer id
+                hash_bytes = hashlib.sha256((symbol + label).encode()).digest()
+                performer_id = int.from_bytes(hash_bytes, byteorder='big') % 10**10
+
+                if label == "(unlabeled)":
+                    print(f"Possible duplicate: {symbol}, {label}")
+            else: 
+                performer_id = matches.group(4)
+
+            cursor.execute("SELECT 1 FROM performers WHERE id = ?", (performer_id,))
+            exists = cursor.fetchone()
+
+            # If the performer doesn't exist, insert the new record
+            if not exists:
+                cursor.execute("INSERT INTO performers (id, performer, symbol, label) VALUES(?, ?, ?, ?)",(performer_id, performer, symbol, label))
+                conn.commit()
+
+            return performer_id
+
+        except sqlite3.Error as e:
+            print(f"ERROR at populate_performers: {e}")
+
+def populate_pages(conn, cursor, line, performer_id):
+    if matches := re.search(r"(\d+[A-Z]?) *(\d+(?: *\- *(?:(?:\d+)|end))?)? *(\d+) (?:Side ([12]):)? *(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln *(?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
+        page = matches.group(1)
+        if matches.group(2) == None:
+            measures = "-"
+        else:
+            measures = matches.group(2) 
+        counts = int(matches.group(3))
+        yd = int(matches.group(8))
+        
+        # set side
+        if matches.group(4) == None:
+            side = 1
+        else: 
+            side = int(matches.group(4))
+
+        # set yd_steps
+        if matches.group(5) != None:
+            yd_steps = 0
+        else:
+            if matches.group(7) == "inside":
+                yd_steps = float(matches.group(6))
+            elif matches.group(7) == "outside":
+                yd_steps = float(matches.group(6)) * -1
+            else:
+                raise ValueError(f"ERROR setting yd_steps at {matches.group(7)}")
+        
+        # set hash_steps
+        if matches.group(9) != None:
+            hash_steps = 0
+        else:
+            if matches.group(11) == "in front of":
+                hash_steps = float(matches.group(10)) 
+            elif matches.group(11) == "behind":
+                hash_steps = float(matches.group(10)) * -1
+            else:
+                raise ValueError(f"ERROR setting hash_steps at {matches.group(11)}")
+            
+        # set hash
+        if matches.group(12) == "Front side line":
+            hash = 100
+        elif matches.group(12) == "Front Hash (HS)":
+            hash = 66.6666
+        elif matches.group(12) == "Back Hash (HS)":
+            hash = 33.3333
+        elif matches.group(12) == "Back side line":
+            hash = 0
+        else:
+            raise ValueError(f"ERROR setting hash at {matches.group(12)}")
+        
+        # populate pages
+        try:
+            cursor.execute(f"SELECT EXISTS (SELECT 1 FROM pages WHERE page = ?)", (page,))
+        except sqlite3.Error as e:
+            print(f"ERROR at select_exists: {e}")
+
+        if cursor.fetchone()[0] == False:
+            try:
+                cursor.execute("INSERT INTO pages (page, measures, counts) VALUES(?, ?, ?)", (page, measures, counts))
+                conn.commit()
+            except sqlite3.Error as e:
+                print(f"ERROR at populate_pages: {e}")
+
+        # get page_id
+        try:
+            cursor.execute(f"SELECT id FROM pages WHERE page = ? LIMIT 1", (page,))
+        except sqlite3.Error as e:
+            print(f"ERROR at get_page_id: {e}")
+        page_id = cursor.fetchone()[0]
+
+
+        # populate dots
+        cursor.execute("SELECT 1 FROM dots WHERE performer_id = ? AND page_id = ?", (performer_id, page_id))
+        exists = cursor.fetchone()
+
+        # If the performer doesn't exist, insert the new record
+        if not exists:
+            try:
+                cursor.execute("INSERT INTO dots (performer_id, page_id, side, yd_steps, yd, hash_steps, hash) VALUES(?, ?, ?, ?, ?, ?, ?)", (performer_id, page_id, side, yd_steps, yd, hash_steps, hash))
+                conn.commit()
+            except sqlite3.Error as e:
+                print(f"ERROR at populate_dots: {e}")
+
+    elif matches := re.search(r"^Printed: .+", line):
+        pass
+    elif matches := re.search(r"^Set Measure .+", line):
+        pass
+    elif matches := re.search(r"^Page.+", line):
+        pass
+    else:
+        print("No match: ", line)
+
 def populate(db_path, txt):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -72,140 +200,20 @@ def populate(db_path, txt):
 
     performer_id = "ERROR"
 
-    for line in lines:
+    # loop through the list (where the performer comes after the sets)
+    start = 0
+    i = 0
+    while i < len(lines):
+        if (lines[i].strip().startswith("Performer")):
+            performer_id = populate_performers(conn, cursor, lines[i])
+            
+            # find performer and loop all pages before the performer
+            for j in range(start,i):
+                populate_pages(conn, cursor, lines[j], performer_id)
 
-        # populate performers 
-        if matches := re.search(r"Performer: (.+)? ?Symbol: ([a-zA-Z]) Label: (\S+) ?(?:ID:(\d+))? [a-zA-Z].+", line):
-            try:
-                if matches.group(1) == None:
-                    performer = "(unnamed)"
-                else:
-                    performer = matches.group(1)
-                
-                symbol = matches.group(2)
-
-                if matches.group(3) == None:
-                    label = "(unlabeled)"
-                else: 
-                    label = matches.group(3)
-
-                    # add the symbol in front of label if not already
-                    if label.isdigit():
-                        label = symbol + label
-
-                if matches.group(4) == None:
-                    # create unique performer id
-                    hash_bytes = hashlib.sha256((symbol + label).encode()).digest()
-                    performer_id = int.from_bytes(hash_bytes, byteorder='big') % 10**10
-
-                    if label == "(unlabeled)":
-                        print(f"Possible duplicate: {symbol}, {label}")
-                else: 
-                    performer_id = matches.group(4)
-
-                cursor.execute("SELECT 1 FROM performers WHERE id = ?", (performer_id,))
-                exists = cursor.fetchone()
-
-                # If the performer doesn't exist, insert the new record
-                if not exists:
-                    cursor.execute("INSERT INTO performers (id, performer, symbol, label) VALUES(?, ?, ?, ?)",(performer_id, performer, symbol, label))
-                    conn.commit()
-
-            except sqlite3.Error as e:
-                print(f"ERROR at populate_performers: {e}")
+            start = i + 1
         
-        # populate dots and pages
-        elif matches := re.search(r"(\d+[A-Z]?) ?(\d+(?: ?\- ?(?:(?:\d+)|end))?)? (\d+) (?:Side ([12]):)? ?(?:(On)|([\d\.]+) steps (inside|outside)) (\d+) yd ln (?:(On)|([\d\.]+) steps (in front of|behind)) (.+)$", line):            
-            page = matches.group(1)
-            if matches.group(2) == None:
-                measures = "-"
-            else:
-                measures = matches.group(2) 
-            counts = int(matches.group(3))
-            yd = int(matches.group(8))
-            
-            # set side
-            if matches.group(4) == None:
-                side = 1
-            else: 
-                side = int(matches.group(4))
-
-            # set yd_steps
-            if matches.group(5) != None:
-                yd_steps = 0
-            else:
-                if matches.group(7) == "inside":
-                    yd_steps = float(matches.group(6))
-                elif matches.group(7) == "outside":
-                    yd_steps = float(matches.group(6)) * -1
-                else:
-                    raise ValueError(f"ERROR setting yd_steps at {matches.group(7)}")
-            
-            # set hash_steps
-            if matches.group(9) != None:
-                hash_steps = 0
-            else:
-                if matches.group(11) == "in front of":
-                    hash_steps = float(matches.group(10)) 
-                elif matches.group(11) == "behind":
-                    hash_steps = float(matches.group(10)) * -1
-                else:
-                    raise ValueError(f"ERROR setting hash_steps at {matches.group(11)}")
-                
-            # set hash
-            if matches.group(12) == "Front side line":
-                hash = 100
-            elif matches.group(12) == "Front Hash (HS)":
-                hash = 66.6666
-            elif matches.group(12) == "Back Hash (HS)":
-                hash = 33.3333
-            elif matches.group(12) == "Back side line":
-                hash = 0
-            else:
-                raise ValueError(f"ERROR setting hash at {matches.group(12)}")
-            
-            # populate pages
-            try:
-                cursor.execute(f"SELECT EXISTS (SELECT 1 FROM pages WHERE page = ?)", (page,))
-            except sqlite3.Error as e:
-                print(f"ERROR at select_exists: {e}")
-
-            if cursor.fetchone()[0] == False:
-                try:
-                    cursor.execute("INSERT INTO pages (page, measures, counts) VALUES(?, ?, ?)", (page, measures, counts))
-                    conn.commit()
-                except sqlite3.Error as e:
-                    print(f"ERROR at populate_pages: {e}")
-
-            # get page_id
-            try:
-                cursor.execute(f"SELECT id FROM pages WHERE page = ? LIMIT 1", (page,))
-            except sqlite3.Error as e:
-                print(f"ERROR at get_page_id: {e}")
-            page_id = cursor.fetchone()[0]
-
-
-            # populate dots
-            cursor.execute("SELECT 1 FROM dots WHERE performer_id = ? AND page_id = ?", (performer_id, page_id))
-            exists = cursor.fetchone()
-
-            # If the performer doesn't exist, insert the new record
-            if not exists:
-                try:
-                    cursor.execute("INSERT INTO dots (performer_id, page_id, side, yd_steps, yd, hash_steps, hash) VALUES(?, ?, ?, ?, ?, ?, ?)", (performer_id, page_id, side, yd_steps, yd, hash_steps, hash))
-                    conn.commit()
-                except sqlite3.Error as e:
-                    print(f"ERROR at populate_dots: {e}")
-
-        elif matches := re.search(r"^Printed: .+", line):
-            pass
-        elif matches := re.search(r"^Set Measure .+", line):
-            pass
-        elif matches := re.search(r"^Page.+", line):
-            pass
-        else:
-            print("No match: ", line)
-
+        i += 1
     
     print("Data inserted successfully")
     cursor.close()
@@ -279,3 +287,11 @@ def add_holds(db_path, holds: list[str]):
     print("Holds added successfully")
     cursor.close()
     conn.close()
+
+
+def main():
+    create_tables("static/test.db")
+    pdf_to_populate("static/mvt1.pdf", "static/test.db")
+
+if __name__ == "__main__":
+    main()
