@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dot Viewer
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="../static/d3.js" defer></script>
+    <script src="../static/scroll.js" defer></script>
+{% endblock %}
+
+{% block body %}
+
+    {% include "snippets/field.html" %}
+
+    <audio id="audio">
+        <source src="/static/PoP2024/audio.mp3" type="audio/mp3">
+    </audio>
+
+{% endblock %} 

@@ -5,36 +5,27 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <script src="../static/d3.js" defer></script>
-    <script src="../static/scroll.js" defer></script>
+
 {% endblock %}
 
 {% block body %}
 
-    {% include "snippets/topbar.html" %}
-    {% include "snippets/sidebar.html" %}
+    {% include "snippets/field.html" %}
 
-    <div class="main-container">
-        <div id="container" class="w-100 h-100">
-            <div id="zoomable-flexbox" class="w-100 h-100 d-flex justify-content-center align-items-center">
-                
-                <div id="field" class="field">
+    <div class="full-screen-overlay sidebar-flex w-100 h-100 d-flex justify-content-center align-items-center">
+    
+        <div class="title">Dot Viewer</div>
 
-                    {% include "snippets/grid.html" %}
-                    {% include "snippets/sideline.html" %}
-                    {% include "snippets/yardline.html" %}
-                    {% include "snippets/hash.html" %}
-                    {% include "snippets/number.html" %}
-                    
-                </div>
-
-            </div>
+        <div class="menu-container d-flex justify-content-center align-items-center align-content-center">
+    
+            <button onclick="window.location.href='{{ url_for('PoP2021') }}'" class="box">PoP 2021</button>
+            <button onclick="window.location.href='{{ url_for('PoP2022') }}'" class="box">PoP 2022</button>
+            <button onclick="window.location.href='{{ url_for('PoP2023') }}'" class="box">PoP 2023</button>
+            <button onclick="window.location.href='{{ url_for('PoP2024') }}'" class="box">PoP 2024</button>
         </div>
-    </div>
 
-    <audio id="audio">
-        <source src="/static/PoP2024/audio.mp3" type="audio/mp3">
-    </audio>
+        <button onclick="window.location.href='{{ url_for('upload') }}'" class="upload-btn">Upload PDF</button>
+
+    </div>
 
 {% endblock %} 

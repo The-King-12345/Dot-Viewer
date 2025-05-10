@@ -6,7 +6,10 @@ import uuid
 from werkzeug.utils import secure_filename
 from populate_upload import pdf_to_populate, create_tables, populate, add_timestamps, add_holds  
 
-DEFAULT_DB_PATH = "static/PoP2024/database.db"
+POP2024_DB = "static/PoP2024/database.db"
+POP2023_DB = "static/PoP2024/database.db"
+POP2022_DB = "static/PoP2024/database.db"
+POP2021_DB = "static/PoP2024/database.db"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
@@ -38,8 +41,28 @@ def get_user_db():
 
 @app.route("/", methods=["GET"])
 def index():
-    session["db_path"] = DEFAULT_DB_PATH
+    session["db_path"] = POP2024_DB
     return render_template("index.html")
+
+@app.route("/PoP2024", methods=["GET"])
+def PoP2024():
+    session["db_path"] = POP2024_DB
+    return render_template("viewer.html")
+
+@app.route("/PoP2023", methods=["GET"])
+def PoP2023():
+    session["db_path"] = POP2023_DB
+    return render_template("viewer.html")
+
+@app.route("/PoP2022", methods=["GET"])
+def PoP2022():
+    session["db_path"] = POP2022_DB
+    return render_template("viewer.html")
+
+@app.route("/PoP2021", methods=["GET"])
+def PoP2021():
+    session["db_path"] = POP2021_DB
+    return render_template("viewer.html")
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
@@ -69,7 +92,7 @@ def upload():
             # store db_path
             session["db_path"] = db_path
 
-            return render_template("index.html")
+            return render_template("viewer.html")
 
     return render_template("upload.html")
 

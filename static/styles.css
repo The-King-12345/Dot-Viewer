@@ -14,13 +14,88 @@
     box-sizing: border-box;
 }
 
+.full-screen-overlay {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.825);  
+    z-index: 999; 
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.menu-container {
+    z-index: 100; 
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.box {
+    height: min(20dvh, 300px);
+    width: min(30dvh, 200px);
+    border-radius: 10%;
+    background-color: rgba(112, 88, 168, 0.9);
+    z-index: 1000;
+    color: white;
+    font-family: 'Quicksand', 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    text-shadow: 
+    0 0 10px rgba(255,255,255,0.3),
+    0 0 20px rgba(255,255,255,0.2),
+    0 0 30px rgba(255,255,255,0.1);
+}
+
+.title {
+  color: white;
+  font-family: 'Quicksand', 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 3.5rem;
+  letter-spacing: 3px;
+  text-shadow: 
+    0 0 10px rgba(255,255,255,0.3),
+    0 0 20px rgba(255,255,255,0.2),
+    0 0 30px rgba(255,255,255,0.1);
+}
+
+.upload-btn {
+    height: min(6dvh, 100px);
+    width: min(30dvw, 250px);
+    background: #d6d6d6;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    box-shadow: 
+    0 2px 4px rgba(0,0,0,0.05),
+    0 4px 8px rgba(0,0,0,0.05);
+}
+
+.upload-container {
+    height: min(16dvh, 200px);
+    border-radius: 12px;
+    background: rgba(112, 88, 168, 0.9);
+    z-index: 1000;
+    color: white;
+    font-weight: 600;
+    font-size: 1.5rem;
+    padding: 3dvh;
+}
+
+.pdf-container {
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
 .topbar {
     position: fixed;
     top: 0;
     left: 0;
     height: var(--topbar-height);
     width: 100dvw;
-    z-index: 999;
+    z-index: 100;
     background-color: rgba(0, 0, 0, 0.7);
 }
 
@@ -30,7 +105,7 @@
     height: calc(100dvh - var(--topbar-height));
     top: var(--topbar-height);
     right: 0;
-    z-index: 998;
+    z-index: 99;
     background-color: rgba(105, 105, 105, 0.2);
 }
 
