@@ -11,6 +11,11 @@ POP2023_DB = "static/PoP/23database.db"
 POP2022_DB = "static/PoP/22database.db"
 POP2021_DB = "static/PoP/21database.db"
 
+POP2024_MP3 = "static/PoP/24audio.mp3"
+POP2023_MP3 = "static/PoP/23audio.mp3"
+POP2022_MP3 = "static/PoP/22audio.mp3"
+POP2021_MP3 = "static/PoP/21audio.mp3"
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 app.config["SESSION_PERMANENT"] = False
@@ -47,22 +52,22 @@ def index():
 @app.route("/PoP2024", methods=["GET"])
 def PoP2024():
     session["db_path"] = POP2024_DB
-    return render_template("viewer.html")
+    return render_template("viewer.html", audio_path = POP2024_MP3)
 
 @app.route("/PoP2023", methods=["GET"])
 def PoP2023():
     session["db_path"] = POP2023_DB
-    return render_template("viewer.html")
+    return render_template("viewer.html", audio_path = POP2023_MP3)
 
 @app.route("/PoP2022", methods=["GET"])
 def PoP2022():
     session["db_path"] = POP2022_DB
-    return render_template("viewer.html")
+    return render_template("viewer.html", audio_path = POP2022_MP3)
 
 @app.route("/PoP2021", methods=["GET"])
 def PoP2021():
     session["db_path"] = POP2021_DB
-    return render_template("viewer.html")
+    return render_template("viewer.html", audio_path = POP2021_MP3)
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
@@ -92,7 +97,7 @@ def upload():
             # store db_path
             session["db_path"] = db_path
 
-            return render_template("viewer.html")
+            return render_template("viewer.html", audio_path = POP2024_MP3)
 
     return render_template("upload.html")
 
