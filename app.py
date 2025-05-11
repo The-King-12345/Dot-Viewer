@@ -6,10 +6,10 @@ import uuid
 from werkzeug.utils import secure_filename
 from populate_upload import pdf_to_populate, create_tables, populate, add_timestamps, add_holds  
 
-POP2024_DB = "static/PoP2024/database.db"
-POP2023_DB = "static/PoP2024/database.db"
-POP2022_DB = "static/PoP2024/database.db"
-POP2021_DB = "static/PoP2024/database.db"
+POP2024_DB = "static/PoP/24database.db"
+POP2023_DB = "static/PoP/23database.db"
+POP2022_DB = "static/PoP/22database.db"
+POP2021_DB = "static/PoP/21database.db"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
