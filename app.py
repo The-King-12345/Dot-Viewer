@@ -15,6 +15,7 @@ POP2024_MP3 = "static/PoP/24audio.mp3"
 POP2023_MP3 = "static/PoP/23audio.mp3"
 POP2022_MP3 = "static/PoP/22audio.mp3"
 POP2021_MP3 = "static/PoP/21audio.mp3"
+SILENT_MP3 = "static/PoP/silence.mp3"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
@@ -97,7 +98,7 @@ def upload():
             # store db_path
             session["db_path"] = db_path
 
-            return render_template("viewer.html", audio_path = POP2024_MP3)
+            return render_template("viewer.html", audio_path = SILENT_MP3)
 
     return render_template("upload.html")
 
