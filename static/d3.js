@@ -8,13 +8,16 @@ let dots_data, pages_data, performers_data, holds;
 
 const container = d3.select("#field");
 const playPauseButton = d3.select("#playPauseButton");
-const nextButton = d3.select("#nextButton")
-const prevButton = d3.select("#prevButton")
-const showButton = d3.select("#showButton")
-const flipButton = d3.select("#flipButton")
-const pageDisplay = d3.select("#pageDisplay")
-const measureDisplay = d3.select("#measuresDisplay")
-const countsDisplay = d3.select("#countsDisplay")
+const playPauseImg = d3.select("#playPauseImg");
+const nextButton = d3.select("#nextButton");
+const prevButton = d3.select("#prevButton");
+const labelButton = d3.select("#labelButton");
+const labelImg = d3.select("#labelImg")
+const flipButton = d3.select("#flipButton");
+const flipImg = d3.select("#flipImg");
+const pageDisplay = d3.select("#pageDisplay");
+const measureDisplay = d3.select("#measuresDisplay");
+const countsDisplay = d3.select("#countsDisplay");
 
 const audio = document.getElementById("audio")
 
@@ -33,7 +36,7 @@ async function main() {
         }
     });
 
-    showButton.on("click", function() {
+    labelButton.on("click", function() {
         toggleLabels();
     });
 
@@ -109,7 +112,7 @@ function stopAudio() {
 
 async function startAnimation() {
     playing = true;
-    playPauseButton.text("Pause");
+    playPauseImg.attr("src", "../static/imgs/pause.png");
     startAudio(() => {
         animate(); 
     });
@@ -119,7 +122,7 @@ async function startAnimation() {
 function pauseAnimation() {
     playing = false;
     stopAudio();
-    playPauseButton.text("Play");
+    playPauseImg.attr("src", "../static/imgs/play.png");
 
     clearTimeout(timer);
     timeoutIds.forEach(id => clearTimeout(id));
@@ -133,14 +136,14 @@ function pauseAnimation() {
 function toggleLabels() {
     if (labeling) {
         labeling = false;
-        showButton.text("O");
+        labelImg.attr("src", "../static/imgs/unlabel.png");
         container.selectAll(".dot")
             .style("color", "rgba(0, 0, 0, 0)")
             .style("text-shadow", "none");
 
     } else {
         labeling = true;
-        showButton.text("I");
+        labelImg.attr("src", "../static/imgs/label.png");
         container.selectAll(".dot")
             .style("color", "gray")
             .style("text-shadow", "1px 1px 0 rgba(255,255,255,0.7),-1px -1px 0 rgba(255,255,255,0.7),1px -1px 0 rgba(255,255,255,0.7),-1px 1px 0 rgba(255,255,255,0.7)");
@@ -152,10 +155,10 @@ function toggleLabels() {
 function flipView() {
     if (flipping) {
         flipping = false;
-        flipButton.text("v")
+        flipImg.style("transform", "rotate(0deg)")
     } else {
         flipping = true;
-        flipButton.text("^")
+        flipImg.style("transform", "rotate(180deg)")
     }
 }
 

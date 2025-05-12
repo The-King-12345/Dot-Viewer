@@ -89,6 +89,17 @@
     flex-wrap: wrap;
 }
 
+.btn-img {
+    width: 15px;
+    height: 15px;
+}
+
+.sidebar-btn:hover {
+    .btn-img {
+        filter: brightness(0) invert(1);
+    }
+}
+
 .topbar {
     position: fixed;
     top: 0;

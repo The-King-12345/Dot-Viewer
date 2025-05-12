@@ -1,11 +1,24 @@
 <div class="sidebar">
     <div class="sidebar-flex w-100 h-100 d-flex justify-content-around align-items-center">
 
-        <button id="playPauseButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">Play</button>
-        <button id="nextButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">+</button>
-        <button id="prevButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">-</button>
-        <button id="showButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">I</button>
-        <button id="flipButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">v</button>
+        <button id="playPauseButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">
+            <img id="playPauseImg" src="../static/imgs/play.png" class="btn-img">
+        </button>
+        <button id="nextButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">
+            <img src="../static/imgs/plus.png" class="btn-img">
+        </button>
+        <button id="prevButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">
+            <img src="../static/imgs/minus.png" class="btn-img">
+        </button>
+        <button id="labelButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">
+            <img id="labelImg" src="../static/imgs/label.png" class="btn-img">
+        </button>
+        <button id="flipButton" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">
+            <img id="flipImg" src="../static/imgs/up.png" class="btn-img">
+        </button>
+        <button onclick="window.location.href='{{ url_for('index') }}'" class="btn btn-light btn-outline-dark rounded-circle sidebar-btn">
+            <img src="../static/imgs/home.png" class="btn-img">
+        </button>
                 
     </div>
 </div>   
