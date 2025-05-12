@@ -45,7 +45,15 @@ def main():
     if args.populate:
         prepare_populate(db_path, txt_path)
     if args.add:
-        add_info23(db_path)
+        match args.year:
+            case "2024":
+                add_info24(db_path)
+            case "2023":
+                add_info23(db_path)
+            case "2022":
+                add_info22(db_path)
+            case "2021":
+                add_info21(db_path)
 
     return
 
@@ -79,13 +87,30 @@ def add_info24(db_path):
     return
 
 def add_info23(db_path):
-    startDelay = 0.65
+    startDelay = 0.3
     # tempos [bpm, mvt, start_set]
-    tempos = [[160,1,1]]
+    tempos = [[168,1,1],
+              [132,2,31],
+              [126,2,38],
+              [112.81,2,39],
+              [106,2,40],
+              [160,3,41],
+              [165.6,3,42],
+              [168,3,43],
+              [151.75,3,61],
+              [142,3,62]]
     # delays {set: delay}
-    delays = {}
+    delays = {30:60/132*5.5}
     # holds [instruction, vars]
-    holds = []
+    holds = [["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) AND performer_id NOT IN (SELECT id FROM performers WHERE label IN (?))", (20,0,"4","G1")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,6,"12")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,12,"13")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,3,"18")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,8,"20")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,8,"22")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,4,"25")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?)", (0,4,"26")],
+             ["UPDATE dots SET start = ?, stop = ? WHERE page_id = (SELECT id FROM pages WHERE page = ?) AND performer_id IN (SELECT id FROM performers WHERE label IN (?))", (18,0,"30","G8")]]
 
     add_timestamps(db_path, startDelay, tempos, delays)
     add_holds(db_path, holds)
@@ -94,11 +119,14 @@ def add_info23(db_path):
     return
 
 def add_info22(db_path):
-    startDelay = 0.65
+    startDelay = 0
     # tempos [bpm, mvt, start_set]
-    tempos = [[160,1,1]]
+    tempos = [[152,1,1],
+              [164,2,15],
+              [132,3,51],
+              [168,3,64]]
     # delays {set: delay}
-    delays = {}
+    delays = {50: 60/164*16}
     # holds [instruction, vars]
     holds = []
 
@@ -109,9 +137,14 @@ def add_info22(db_path):
     return
 
 def add_info21(db_path):
-    startDelay = 0.65
+    startDelay = 2.2
     # tempos [bpm, mvt, start_set]
-    tempos = [[160,1,1]]
+    tempos = [[152,1,1],
+              [130,2,20],
+              [146,2,21],
+              [159,2,29],
+              [172,2,30],
+              [162,3,36]]
     # delays {set: delay}
     delays = {}
     # holds [instruction, vars]

@@ -4,7 +4,7 @@ let flipping= false;
 let currentIndex = 1;
 let timer;
 let timeoutIds = [];
-let dots_data, pages_data, performers_data;
+let dots_data, pages_data, performers_data, holds;
 
 const container = d3.select("#field");
 const playPauseButton = d3.select("#playPauseButton");
@@ -85,11 +85,10 @@ function prev() {
 async function startAudio(callback) {
     const page = getPage(currentIndex);
 
-    audio.load();
-
-    audio.currentTime = page.timestamp;    
+    audio.load();  
 
     audio.addEventListener('canplaythrough', () => {
+        audio.currentTime = page.timestamp;  
         audio.play().then(() => {
             callback(); 
         }).catch((error) => {
@@ -198,30 +197,30 @@ async function animate() {
         timeoutIds.push(timeoutId);
     }
 
-    if (page.id == 23) {
-        timer = setTimeout(() => {
+    let flag = true;
+
+    for (const hold of holds) {
+        if (page.id == hold[0]) {
+            flag = false;
+
+            timer = setTimeout(() => {
             updateDisplay(currentIndex, false);
             
             timer = setTimeout(() => {
                 animate()
-            }, (60/107*7*1000)); // 7 count delay
+            }, (hold[1])); 
         }, duration);
+        }
+    }
 
-    } else if (page.id == 37) {
-        timer = setTimeout(() => {
-            updateDisplay(currentIndex, false);
-
-            timer = setTimeout(() => {
-                animate()
-            }, (60/160*4*1000)); // 4 count delay
-        }, duration);
-
-    } else if (page.id == 63) {
+    if (page.id == pages_data.length) {
+        flag = false;
         timer = setTimeout(() => {
             updateDisplay(currentIndex, false);
         }, duration);
+    }
 
-    } else {
+    if (flag) {
         timer = setTimeout(() => animate(), duration);
     }
     
@@ -337,6 +336,7 @@ async function loadData() {
         dots_data = data[0]
         pages_data = data[1]
         performers_data = data[2]
+        holds = data[3]
     } catch (error) {
         console.error("Error loading data:",error)
     }

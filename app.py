@@ -125,7 +125,19 @@ def get_data():
         app.logger.info(f"ERROR at /positions: {e}")
     performers = [dict(row) for row in cursor.fetchall()]
 
-    return jsonify([dots, pages, performers])
+    # manually input holds [set,duration]
+    holds = []
+
+    if session["db_path"] == POP2024_DB:
+        holds = [[23,60/107*7*1000], [37,60/160*4*1000]]
+    elif session["db_path"] == POP2023_DB:
+        holds = [[30,60/132*5.5*1000]]
+    elif session["db_path"] == POP2022_DB:
+        holds = [[50,60/164*16*1000]]
+    elif session["db_path"] == POP2021_DB:
+        holds = []
+    
+    return jsonify([dots, pages, performers, holds])
 
 
 if __name__ == "__main__":
