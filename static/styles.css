@@ -23,6 +23,7 @@
     background-color: rgba(0, 0, 0, 0.825);  
     z-index: 999; 
     gap: 20px;
+    flex-direction: column;
     flex-wrap: wrap;
 }
 
@@ -34,14 +35,14 @@
 
 .box {
     height: min(20dvh, 300px);
-    width: min(30dvh, 200px);
+    width: min(45dvw, 200px);
     border-radius: 10%;
     background-color: rgba(112, 88, 168, 0.9);
     z-index: 1000;
     color: white;
     font-family: 'Quicksand', 'Poppins', sans-serif;
     font-weight: 600;
-    font-size: 2rem;
+    font-size: 150%;
     letter-spacing: 3px;
     text-shadow: 
     0 0 10px rgba(255,255,255,0.3),
@@ -53,7 +54,7 @@
   color: white;
   font-family: 'Quicksand', 'Poppins', sans-serif;
   font-weight: 800;
-  font-size: 3.5rem;
+  font-size: 325%;
   letter-spacing: 3px;
   text-shadow: 
     0 0 10px rgba(255,255,255,0.3),
@@ -62,11 +63,9 @@
 }
 
 .upload-btn {
-    height: min(6dvh, 100px);
-    width: min(30dvw, 250px);
-    background: #d6d6d6;
+    padding: 10px 20px;
     border-radius: 12px;
-    font-size: 1.5rem;
+    font-size: 100%;
     font-weight: 600;
     box-shadow: 
     0 2px 4px rgba(0,0,0,0.05),
@@ -74,7 +73,8 @@
 }
 
 .upload-container {
-    height: min(16dvh, 200px);
+    padding: 25px;
+    max-width: 95%;
     border-radius: 12px;
     background: rgba(112, 88, 168, 0.9);
     z-index: 1000;

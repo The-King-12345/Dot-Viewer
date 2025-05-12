@@ -8,22 +8,20 @@
     
     {% include "snippets/field.html" %}
 
-    <div class="full-screen-overlay sidebar-flex w-100 h-100 d-flex justify-content-center align-items-center align-content-center">
+    <div class="full-screen-overlay w-100 h-100 d-flex justify-content-center align-items-center align-content-center">
     
         <div class="title">Upload</div>
 
         <div class="upload-container d-flex justify-content-center align-items-center">
                 
             <form action="/upload" method="POST" enctype="multipart/form-data" class="pdf-container d-flex justify-content-center align-items-center">
-                <input type="file" name="pdf" accept="application/pdf" required>
-                <button type="submit">Submit</button>
+                <input type="file" class="form-control" name="pdf" accept="application/pdf" required>
+                <button type="submit" class="btn btn-light fw-normal">Submit</button>
             </form>
-
-            
 
         </div>
         
-        <button onclick="window.location.href='{{ url_for('index') }}'" class="upload-btn">Back</button>
+        <button onclick="window.location.href='{{ url_for('index') }}'" class="btn btn-light fw-normal">Back</button>
 
     </div>
     
