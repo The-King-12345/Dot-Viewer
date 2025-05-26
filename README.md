@@ -1,3 +1,23 @@
 # Dot Viewer
 
-This project is a Marching Band show visualizer. It takes a dot sheet PDF of Marching Band coordinates and displays them on a digital football field. The website enables users to flip through drill sets and watch the dots move in sync with the music.
+A Marching Band visualizer web application inspired by UDB. Displays a dynamic digital football field that visualizes dot sheet PDFs in sync with music, allowing users to flip through drill sets and animate movements.
+
+![](static/imgs/screenshots/viewerScreen.png)
+
+![](static/imgs/screenshots/menuScreen.png)
+
+![](static/imgs/screenshots/uploadScreen.png)
+
+## Uploading Dot Sheets
+
+Dot sheets should be in the format depicted below otherwise the scanner will not function properly.
+
+![](static/imgs/screenshots/dotSheet.png)
+
+
+## Built With
+
+- Python / Flask (PDF processing)
+- D3.js (visualizations)
+- HTML5
+- CSS3
