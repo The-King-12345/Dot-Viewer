@@ -8,13 +8,6 @@ A Marching Band visualizer web application inspired by UDB. Displays a dynamic d
 
 ![](static/imgs/screenshots/uploadScreen.png)
 
-## Uploading Dot Sheets
-
-Dot sheets should be in the format depicted below otherwise the scanner will not function properly.
-
-![](static/imgs/screenshots/dotSheet.png)
-
-
 ## Built With
 
 - Python / Flask (PDF processing)

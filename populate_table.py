@@ -1,6 +1,4 @@
-import sqlite3
 from pypdf import PdfReader
-import re
 import argparse
 from populate_upload import create_tables, populate, add_timestamps, add_holds
 

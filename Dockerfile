@@ -41,10 +41,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Copy the source code into the container.
 COPY . .
 
-RUN mkdir -p /app/flask_session && chmod -R 777 /app/flask_session \
-    && mkdir -p /app/uploads && chmod -R 777 /app/uploads \
-    && mkdir -p /app/user_databases && chmod -R 777 /app/user_databases
-
 # Switch to the non-privileged user to run the application.
 USER appuser
 
